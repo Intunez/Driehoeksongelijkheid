@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kan jij de muzikale driehoek bouwen?</title>
+  <style>
+    :root{
+      --bg:#f6fbff;
+      --card:#ffffff;
+      --ink:#123;
+      --muted:#4a5a6a;
+      --accent:#2a7fff;
+      --good:#1f9d55;
+      --bad:#e53935;
+      --shadow: 0 10px 30px rgba(10,30,60,.10);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 700px at 20% 0%, #dff0ff 0%, transparent 55%),
+        radial-gradient(900px 600px at 90% 20%, #e8fff2 0%, transparent 55%),
+        var(--bg);
+    }
+
+    header{
+      padding: 18px 18px 0 18px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1{
+      margin: 10px 0 6px;
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing: -0.4px;
+    }
+    .subtitle{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.35;
+      font-size: 15px;
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding: 10px 18px 30px;
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+
+    .panel-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .panel-title h2{
+      margin:0;
+      font-size:18px;
+    }
+    .badge{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#eef6ff;
+      color:#2a5ea8;
+      border:1px solid #d7eaff;
+      white-space:nowrap;
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+      margin-top:10px;
+    }
+
+    .control{
+      border:1px solid #e6eef7;
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: #fbfdff;
+    }
+
+    .labelline{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .labelline strong{ font-size:14px; }
+    .value{
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input[type="range"]{
+      width:100%;
+      accent-color: var(--accent);
+    }
+
+    .mini{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+    button{
+      border:0;
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-weight: 800;
+      cursor:pointer;
+      transition: transform .06s ease, filter .15s ease;
+      user-select:none;
+    }
+    button:active{ transform: scale(.99); }
+    .btn{
+      background: var(--accent);
+      color:white;
+      box-shadow: 0 10px 18px rgba(42,127,255,.25);
+    }
+    .btn:hover{ filter: brightness(1.03); }
+    .btn-ghost{
+      background:#eef6ff;
+      color:#244b7a;
+      border:1px solid #d7eaff;
+      box-shadow:none;
+    }
+
+    select{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid #e6eef7;
+      background:#ffffff;
+      font-weight:700;
+      color: var(--ink);
+    }
+
+    .feedback{
+      margin-top:12px;
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px dashed #d7eaff;
+      background: #f7fbff;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .dot{
+      width:12px;height:12px;border-radius:50%;
+      margin-top:4px;
+      background:#9fb7d6;
+      flex:0 0 auto;
+    }
+    .msg{
+      line-height:1.25;
+    }
+    .msg strong{
+      display:block;
+      margin-bottom:4px;
+      font-size: 14px;
+    }
+    .msg span{
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .good{
+      border-color: rgba(31,157,85,.35);
+      background: rgba(31,157,85,.08);
+    }
+    .good .dot{ background: var(--good); }
+
+    .bad{
+      border-color: rgba(229,57,53,.35);
+      background: rgba(229,57,53,.08);
+    }
+    .bad .dot{ background: var(--bad); }
+
+    .stage{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .canvas-wrap{
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      overflow:hidden;
+      border: 1px solid #eaf2fb;
+    }
+    .stagebar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      padding: 12px 14px;
+    }
+    .stagebar .left{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .pill{
+      padding: 8px 10px;
+      border-radius: 999px;
+      background:#f3f8ff;
+      border:1px solid #e1efff;
+      font-weight:800;
+      font-size: 13px;
+      color:#21486f;
+    }
+    .pill b{ font-variant-numeric: tabular-nums; }
+
+    canvas{
+      width:100%;
+      height: 440px;
+      display:block;
+    }
+
+    .rule{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .rule code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background:#f0f6ff;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid #d7eaff;
+      color:#234a78;
+    }
+
+    footer{
+      max-width:1100px;
+      margin: 0 auto;
+      padding: 0 18px 24px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ---------------- Speelse fout-quiz ---------------- */
+    .quiz{
+      margin-top: 12px;
+      border-radius: 16px;
+      padding: 12px;
+      border: 1px solid #ffe6a7;
+      background: #fffaf0;
+    }
+    .hidden{ display:none; }
+
+    .quiz-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .quiz-title{
+      font-weight: 900;
+    }
+    .stars{
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #fff2cc;
+      border: 1px solid #ffe6a7;
+    }
+    .quiz-block{
+      border-top: 1px dashed #ffd88a;
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    .q{
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .options{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .optbtn{
+      background:#ffffff;
+      border:1px solid #ffd88a;
+      color:#5a3a00;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 900;
+    }
+    .optbtn:hover{ filter: brightness(1.02); }
+    .optbtn.correct{
+      border-color: rgba(31,157,85,.35);
+      background: rgba(31,157,85,.12);
+      color: #0b4f2a;
+    }
+    .optbtn.wrong{
+      border-color: rgba(229,57,53,.35);
+      background: rgba(229,57,53,.10);
+      color: #7a0b0b;
+    }
+    .hint{
+      margin-top: 8px;
+      color: #6a5a3a;
+      font-size: 13px;
+      line-height: 1.25;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🎵 Kan jij de muzikale driehoek bouwen?</h1>
+    <p class="subtitle">
+      Verander de lengtes van de 3 zijden. Klik op <b>Speel driehoek</b>:
+      je hoort 3 tonen (één per zijde) en je ziet of het een echte driehoek kan zijn.
+    </p>
+  </header>
+
+  <main class="wrap">
+    <!-- LINKS: bediening -->
+    <section class="card">
+      <div class="panel-title">
+        <h2>1) Kies je zijden</h2>
+        <span class="badge">10–12 jaar • digibord-proof</span>
+      </div>
+
+      <div class="row">
+        <div class="control">
+          <div class="labelline">
+            <strong>Zijde a</strong>
+            <span class="value"><span id="va">7</span> cm</span>
+          </div>
+          <input id="ra" type="range" min="2" max="20" value="7" />
+          <div class="mini">
+            <button class="btn-ghost" data-tap="a">🎵 Luister</button>
+          </div>
+        </div>
+
+        <div class="control">
+          <div class="labelline">
+            <strong>Zijde b</strong>
+            <span class="value"><span id="vb">9</span> cm</span>
+          </div>
+          <input id="rb" type="range" min="2" max="20" value="9" />
+          <div class="mini">
+            <button class="btn-ghost" data-tap="b">🎵 Luister</button>
+          </div>
+        </div>
+
+        <div class="control">
+          <div class="labelline">
+            <strong>Zijde c</strong>
+            <span class="value"><span id="vc">12</span> cm</span>
+          </div>
+          <input id="rc" type="range" min="2" max="20" value="12" />
+          <div class="mini">
+            <button class="btn-ghost" data-tap="c">🎵 Luister</button>
+          </div>
+        </div>
+
+        <div class="control">
+          <div class="labelline">
+            <strong>Of kies een voorbeeld</strong>
+            <span class="value">snel starten</span>
+          </div>
+          <select id="preset">
+            <option value="">— kies een combinatie —</option>
+            <option value="3,4,5">✅ (3, 4, 5) klassieke driehoek</option>
+            <option value="6,6,6">✅ (6, 6, 6) gelijkzijdig</option>
+            <option value="5,7,10">✅ (5, 7, 10) net genoeg</option>
+            <option value="2,3,5">❌ (2, 3, 5) ligt op één lijn</option>
+            <option value="4,6,12">❌ (4, 6, 12) te lang</option>
+            <option value="8,9,20">❌ (8, 9, 20) bijna onmogelijk</option>
+          </select>
+        </div>
+
+        <div class="mini">
+          <button id="play" class="btn">▶️ Speel driehoek</button>
+          <button id="random" class="btn-ghost">🎲 Willekeurig</button>
+          <button id="reset" class="btn-ghost">↩️ Reset</button>
+        </div>
+
+        <div id="feedback" class="feedback">
+          <div class="dot"></div>
+          <div class="msg">
+            <strong>Tip</strong>
+            <span>Een driehoek kan alleen als elke zijde kleiner is dan de som van de twee andere.</span>
+          </div>
+        </div>
+
+        <!-- Speelse fout-quiz (verschijnt alleen bij fout) -->
+        <div id="quiz" class="quiz hidden" aria-live="polite">
+          <div class="quiz-head">
+            <div class="quiz-title">🕵️ Fout gevonden! Los het raadsel op…</div>
+            <div class="stars">⭐ <b id="stars">0</b></div>
+          </div>
+
+          <div class="quiz-block">
+            <div class="q">1) Welke zijde is te lang?</div>
+            <div class="options" id="opt-too-long"></div>
+            <div class="hint" id="hint-too-long"></div>
+          </div>
+
+          <div class="quiz-block">
+            <div class="q">2) Welke ongelijkheid klopt niet?</div>
+            <div class="options" id="opt-ineq"></div>
+            <div class="hint" id="hint-ineq"></div>
+          </div>
+        </div>
+
+        <div class="rule">
+          Regel (driehoeksongelijkheid):<br/>
+          <code>a &lt; b + c</code> &nbsp;•&nbsp;
+          <code>b &lt; a + c</code> &nbsp;•&nbsp;
+          <code>c &lt; a + b</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECHTS: visualisatie -->
+    <section class="stage">
+      <div class="canvas-wrap">
+        <div class="stagebar">
+          <div class="left">
+            <div class="pill">Score: <b id="score">0</b> / 5</div>
+            <div class="pill">Level: <b id="level">1</b></div>
+          </div>
+          <div class="pill">🎵 Lang = lage toon</div>
+        </div>
+        <canvas id="cv" width="900" height="440" aria-label="Driehoek canvas"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="panel-title">
+          <h2>2) Wat gebeurt er?</h2>
+          <span class="badge">muziek ↔ lengte ↔ vorm</span>
+        </div>
+        <p style="margin:0;color:var(--muted);line-height:1.35;font-size:14px">
+          Je hoort drie tonen na elkaar (a, b, c). Daarna:
+          <b>groen</b> = echte driehoek + akkoord,
+          <b>rood</b> = geen driehoek + vals geluid + mini-quiz.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Tip voor GitHub: plaats dit bestand als <b>index.html</b> in een repo en zet GitHub Pages aan.
+    (Geen libraries nodig.)
+  </footer>
+
+  <script>
+    /******************************************************************
+     * MUZIKALE DRIEHOEK - enkel HTML/CSS/JS, geen externe libraries
+     * Speelser: bij fout komt er een mini-quiz + sterren.
+     * Consistente koppeling: langere zijde -> lagere toon.
+     ******************************************************************/
+
+    // --- DOM helpers
+    const ra = document.getElementById("ra");
+    const rb = document.getElementById("rb");
+    const rc = document.getElementById("rc");
+    const va = document.getElementById("va");
+    const vb = document.getElementById("vb");
+    const vc = document.getElementById("vc");
+
+    const btnPlay = document.getElementById("play");
+    const btnRandom = document.getElementById("random");
+    const btnReset = document.getElementById("reset");
+    const preset = document.getElementById("preset");
+
+    const feedback = document.getElementById("feedback");
+    const scoreEl = document.getElementById("score");
+    const levelEl = document.getElementById("level");
+
+    const canvas = document.getElementById("cv");
+    const ctx = canvas.getContext("2d");
+
+    // Quiz DOM
+    const quiz = document.getElementById("quiz");
+    const starsEl = document.getElementById("stars");
+    const optTooLong = document.getElementById("opt-too-long");
+    const optIneq = document.getElementById("opt-ineq");
+    const hintTooLong = document.getElementById("hint-too-long");
+    const hintIneq = document.getElementById("hint-ineq");
+
+    // --- Game state
+    let score = 0;
+    let level = 1;
+    let stars = 0;
+
+    // Sliders worden per level wat "groter" (iets uitdagender, maar simpel).
+    function applyLevelLimits(){
+      const max = 20 + (level-1)*10;           // level 1: 20, level 2: 30, ...
+      const min = 2 + Math.floor((level-1)*1); // heel licht stijgend
+      [ra,rb,rc].forEach(r => {
+        r.min = String(min);
+        r.max = String(max);
+      });
+    }
+
+    // --- Web Audio: eenvoudige xylophone-achtige klank
+    let audioCtx = null;
+
+    function ensureAudio(){
+      if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if(audioCtx.state === "suspended"){
+        audioCtx.resume();
+      }
+    }
+
+    // Map lengte -> frequentie (langere zijde = lagere toon).
+    function lengthToFreq(len){
+      const minLen = Number(ra.min);
+      const maxLen = Number(ra.max);
+      const t = (len - minLen) / (maxLen - minLen); // 0..1
+      const high = 880; // kort -> hoog
+      const low  = 220; // lang -> laag
+      return high + (low - high) * t;
+    }
+
+    // Speel één toon met korte "mallet" attack + snelle decay
+    function playTone(freq, startTime, duration=0.18){
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(2200, startTime);
+
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.35, startTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + duration + 0.02);
+    }
+
+    function playGoodChord(base=330){
+      const t0 = audioCtx.currentTime + 0.02;
+      playTone(base * 1.0,  t0, 0.28);
+      playTone(base * 1.25, t0, 0.28);
+      playTone(base * 1.5,  t0, 0.28);
+    }
+
+    function playBadSound(){
+      const t0 = audioCtx.currentTime + 0.02;
+      playTone(180, t0, 0.22);
+      playTone(430, t0 + 0.05, 0.18);
+      playTone(452, t0 + 0.05, 0.18);
+    }
+
+    // --- Wiskunde: driehoeksongelijkheid
+    function isValidTriangle(a,b,c){
+      return (a < b + c) && (b < a + c) && (c < a + b);
+    }
+
+    // --- UI updates
+    function getLengths(){
+      return { a:Number(ra.value), b:Number(rb.value), c:Number(rc.value) };
+    }
+
+    function updateReadouts(){
+      va.textContent = ra.value;
+      vb.textContent = rb.value;
+      vc.textContent = rc.value;
+      drawScene();
+    }
+
+    function setFeedback(state, title, text){
+      feedback.classList.remove("good","bad");
+      if(state === "good") feedback.classList.add("good");
+      if(state === "bad") feedback.classList.add("bad");
+      feedback.querySelector("strong").textContent = title;
+      feedback.querySelector("span").textContent = text;
+    }
+
+    function bumpScore(){
+      score++;
+      if(score >= 5){
+        level++;
+        score = 0;
+        applyLevelLimits();
+        setFeedback("good","Level omhoog! 🎉",
+          "Top! Nieuw level: de getallen worden groter. Bouw opnieuw 5 juiste driehoeken.");
+      }
+      scoreEl.textContent = String(score);
+      levelEl.textContent = String(level);
+    }
+
+    // --- Canvas tekenen
+    function clearCanvas(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      // zacht raster (projectie-vriendelijk)
+      ctx.save();
+      ctx.globalAlpha = 0.07;
+      ctx.strokeStyle = "#123";
+      for(let x=0; x<=canvas.width; x+=40){
+        ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
+      }
+      for(let y=0; y<=canvas.height; y+=40){
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function lengthsToPixels(a,b,c){
+      const maxSide = Math.max(a,b,c);
+      const scale = 340 / maxSide;
+      return { A:a*scale, B:b*scale, C:c*scale };
+    }
+
+    function drawLabel(x,y,text){
+      ctx.save();
+      ctx.font = "900 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillStyle = "#123";
+      ctx.fillText(text, x, y);
+      ctx.restore();
+    }
+
+    function drawStick(x1,y1,x2,y2,thick=10){
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "rgba(18,34,51,0.95)";
+      ctx.lineWidth = thick;
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(255,255,255,0.55)";
+      ctx.lineWidth = Math.max(2, thick*0.25);
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawScene(){
+      clearCanvas();
+      const {a,b,c} = getLengths();
+      const ok = isValidTriangle(a,b,c);
+
+      ctx.save();
+      ctx.font = "900 22px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillStyle = "#123";
+      ctx.fillText(ok ? "✅ Dit kan een driehoek zijn" : "❌ Dit kan geen driehoek zijn", 22, 34);
+      ctx.restore();
+
+      const {A,B,C} = lengthsToPixels(a,b,c);
+
+      if(!ok){
+        const y = 260;
+        const x0 = 110;
+        drawStick(x0, y, x0 + A, y, 12);
+        drawStick(x0 + A + 18, y, x0 + A + 18 + B, y, 12);
+        drawStick(x0 + A + B + 36, y, x0 + A + B + 36 + C, y, 12);
+
+        drawLabel(x0 + A/2 - 10, y - 18, "a");
+        drawLabel(x0 + A + 18 + B/2 - 10, y - 18, "b");
+        drawLabel(x0 + A + B + 36 + C/2 - 10, y - 18, "c");
+
+        ctx.save();
+        ctx.font = "700 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillStyle = "rgba(18,34,51,0.72)";
+        ctx.fillText("De driehoek klapt plat als één zijde te lang is.", 22, 410);
+        ctx.restore();
+
+        return;
+      }
+
+      // Geldige driehoek: PQ=C, PR=A, QR=B
+      const P = {x: 230, y: 315};
+      const Q = {x: P.x + C, y: P.y};
+
+      const x = (A*A - B*B + C*C) / (2*C);
+      const y = Math.sqrt(Math.max(0, A*A - x*x));
+      const R = {x: P.x + x, y: P.y - y};
+
+      drawStick(P.x,P.y, Q.x,Q.y, 12);
+      drawStick(P.x,P.y, R.x,R.y, 12);
+      drawStick(Q.x,Q.y, R.x,R.y, 12);
+
+      drawLabel((P.x+R.x)/2 - 10, (P.y+R.y)/2 - 10, "a");
+      drawLabel((Q.x+R.x)/2 - 10, (Q.y+R.y)/2 - 10, "b");
+      drawLabel((P.x+Q.x)/2 - 10, (P.y+Q.y)/2 + 28, "c");
+
+      ctx.save();
+      ctx.fillStyle = "#123";
+      [P,Q,R].forEach(pt=>{
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 5, 0, Math.PI*2);
+        ctx.fill();
+      });
+      ctx.restore();
+
+      ctx.save();
+      ctx.font = "700 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+      ctx.fillStyle = "rgba(18,34,51,0.72)";
+      ctx.fillText("Elke zijde is kleiner dan de som van de andere twee.", 22, 410);
+      ctx.restore();
+    }
+
+    // --- Quiz helpers (speels)
+    function showQuiz(){ quiz.classList.remove("hidden"); }
+    function hideQuiz(){ quiz.classList.add("hidden"); }
+
+    function addStar(){
+      stars++;
+      starsEl.textContent = String(stars);
+    }
+
+    function failingInequalities(a,b,c){
+      const fails = [];
+      if(!(a < b + c)) fails.push("a < b + c");
+      if(!(b < a + c)) fails.push("b < a + c");
+      if(!(c < a + b)) fails.push("c < a + b");
+      return fails;
+    }
+
+    function tooLongSides(a,b,c){
+      const tooLong = [];
+      if(a >= b + c) tooLong.push("a");
+      if(b >= a + c) tooLong.push("b");
+      if(c >= a + b) tooLong.push("c");
+      return tooLong;
+    }
+
+    function renderOptionButtons(container, labels, correctSet, hintEl, correctHint){
+      container.innerHTML = "";
+      hintEl.textContent = "";
+      container.dataset.solved = "0";
+
+      labels.forEach(label => {
+        const btn = document.createElement("button");
+        btn.className = "optbtn";
+        btn.type = "button";
+        btn.textContent = label;
+
+        btn.addEventListener("click", () => {
+          if(container.dataset.solved === "1") return;
+
+          const ok = correctSet.has(label);
+          if(ok){
+            btn.classList.add("correct");
+            container.dataset.solved = "1";
+            addStar();
+            hintEl.textContent = correctHint;
+          }else{
+            btn.classList.add("wrong");
+            hintEl.textContent =
+              "Niet helemaal. Tip: zoek de zijde die even lang of langer is dan de som van de andere twee.";
+          }
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    function buildFailureQuiz(a,b,c){
+      showQuiz();
+      hintTooLong.textContent = "";
+      hintIneq.textContent = "";
+
+      // 1) te lange zijde(n)
+      const tls = tooLongSides(a,b,c);
+      const correctSides = new Set(tls);
+      renderOptionButtons(
+        optTooLong,
+        ["a","b","c"],
+        correctSides,
+        hintTooLong,
+        `Juist! Zijde ${tls.join(" en ")} is te lang. Daarom sluit de driehoek niet.`
+      );
+
+      // 2) welke ongelijkheid klopt niet? (kies 1 uit de falende)
+      const fails = failingInequalities(a,b,c);
+      const chosenFail = fails[Math.floor(Math.random()*fails.length)];
+      renderOptionButtons(
+        optIneq,
+        ["a < b + c","b < a + c","c < a + b"],
+        new Set([chosenFail]),
+        hintIneq,
+        `Yes! ${chosenFail} klopt niet.`
+      );
+    }
+
+    // --- Interactie: individuele toon beluisteren
+    function playSingle(side){
+      ensureAudio();
+      const {a,b,c} = getLengths();
+      const len = side === "a" ? a : (side === "b" ? b : c);
+      playTone(lengthToFreq(len), audioCtx.currentTime + 0.02, 0.20);
+    }
+
+    document.querySelectorAll("button[data-tap]").forEach(btn=>{
+      btn.addEventListener("click", () => playSingle(btn.dataset.tap));
+    });
+
+    // --- Spel flow: Speel driehoek
+    function playTriangle(){
+      ensureAudio();
+
+      const {a,b,c} = getLengths();
+      const fa = lengthToFreq(a);
+      const fb = lengthToFreq(b);
+      const fc = lengthToFreq(c);
+
+      const t0 = audioCtx.currentTime + 0.06;
+
+      // 3 tonen na elkaar
+      playTone(fa, t0, 0.18);
+      playTone(fb, t0 + 0.24, 0.18);
+      playTone(fc, t0 + 0.48, 0.18);
+
+      const ok = isValidTriangle(a,b,c);
+      const after = t0 + 0.75;
+
+      if(ok){
+        hideQuiz();
+        const avg = (fa+fb+fc)/3;
+        const base = Math.min(440, Math.max(260, avg));
+
+        setTimeout(()=> { ensureAudio(); playGoodChord(base); },
+          Math.max(0, (after - audioCtx.currentTime) * 1000));
+
+        setFeedback("good", "Ja! Dit kan een driehoek zijn. ✅",
+          "Je voldoet aan a < b + c, b < a + c en c < a + b.");
+        bumpScore();
+      }else{
+        buildFailureQuiz(a,b,c);
+
+        setTimeout(()=> { ensureAudio(); playBadSound(); },
+          Math.max(0, (after - audioCtx.currentTime) * 1000));
+
+        setFeedback("bad", "Nee! Deze zijden kunnen geen driehoek vormen. ❌",
+          "Minstens één zijde is te lang: de driehoek klapt plat.");
+      }
+
+      drawScene();
+    }
+
+    // --- Presets
+    preset.addEventListener("change", () => {
+      if(!preset.value) return;
+      const [a,b,c] = preset.value.split(",").map(Number);
+      ra.value = String(a);
+      rb.value = String(b);
+      rc.value = String(c);
+      updateReadouts();
+      setFeedback("", "Klaar om te testen",
+        "Klik op ‘Speel driehoek’ en luister + kijk wat er gebeurt.");
+    });
+
+    // --- Random (mix geldig/ongeldig)
+    function randInt(min,max){
+      return Math.floor(Math.random()*(max-min+1)) + min;
+    }
+
+    function setRandom(){
+      const min = Number(ra.min), max = Number(ra.max);
+      const wantValid = Math.random() < 0.5;
+
+      let a,b,c;
+      if(wantValid){
+        a = randInt(min, max);
+        b = randInt(min, max);
+        const low = Math.max(min, Math.abs(a-b) + 1);
+        const high = Math.min(max, a + b - 1);
+        c = (low <= high) ? randInt(low, high) : randInt(min, max);
+      }else{
+        a = randInt(min, max);
+        b = randInt(min, max);
+        c = Math.min(max, a + b + randInt(0, 6));
+        if(isValidTriangle(a,b,c)) c = Math.min(max, a + b);
+      }
+
+      ra.value = String(a);
+      rb.value = String(b);
+      rc.value = String(c);
+
+      updateReadouts();
+      setFeedback("", "Willekeurige zijden gekozen 🎲",
+        "Klik op ‘Speel driehoek’ om te controleren.");
+    }
+
+    // --- Reset
+    function resetAll(){
+      level = 1;
+      score = 0;
+      stars = 0;
+
+      applyLevelLimits();
+      ra.value = "7"; rb.value = "9"; rc.value = "12";
+
+      scoreEl.textContent = "0";
+      levelEl.textContent = "1";
+      starsEl.textContent = "0";
+
+      preset.value = "";
+      hideQuiz();
+
+      updateReadouts();
+      setFeedback("", "Tip",
+        "Pas de schuiven aan en test: wanneer wordt het wél of niet een driehoek?");
+    }
+
+    // --- Events
+    [ra,rb,rc].forEach(r => r.addEventListener("input", updateReadouts));
+    btnPlay.addEventListener("click", playTriangle);
+    btnRandom.addEventListener("click", setRandom);
+    btnReset.addEventListener("click", resetAll);
+
+    // Init
+    applyLevelLimits();
+    updateReadouts();
+    drawScene();
+  </script>
+</body>
+</html>
