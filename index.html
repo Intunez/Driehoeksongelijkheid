@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Muzikale Driehoek – Hoeken & Driehoeksongelijkheid</title>
+  <title>Muzikale Driehoek – Levels</title>
   <style>
     :root{
       --bg:#f6fbff;
@@ -19,7 +19,6 @@
       --a:#ff6b6b;
       --b:#4dabf7;
       --c:#69db7c;
-
       --sum:#2fb344;
       --long:#f59f00;
     }
@@ -59,23 +58,14 @@
       padding: 10px 18px 30px;
     }
 
-    .page{
-      display:none;
-      gap: 14px;
-    }
+    .page{ display:none; gap: 14px; }
     .page.active{ display:grid; }
 
-    /* 2-koloms layout op breed scherm */
     @media (min-width: 980px){
-      .page{
-        grid-template-columns: 1fr 420px;
-        align-items:start;
-      }
+      .page{ grid-template-columns: 1fr 420px; align-items:start; }
     }
     @media (max-width: 979px){
-      .page{
-        grid-template-columns: 1fr;
-      }
+      .page{ grid-template-columns: 1fr; }
     }
 
     .card{
@@ -175,16 +165,8 @@
       font-size:18px;
     }
 
-    .mcq{
-      display:grid;
-      gap:10px;
-      margin-top: 10px;
-    }
-    .choiceRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
+    .mcq{ display:grid; gap:10px; margin-top: 10px; }
+    .choiceRow{ display:flex; gap:10px; flex-wrap:wrap; }
     .choice{
       flex: 1 1 80px;
       background:#fff;
@@ -217,45 +199,6 @@
       line-height: 1.25;
     }
 
-    .settings{
-      display:grid;
-      gap:12px;
-      margin-top: 6px;
-    }
-    .control{
-      border:1px solid #e6eef7;
-      border-radius: 14px;
-      padding: 10px 12px;
-      background: #fbfdff;
-    }
-    .labelline{
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:6px;
-    }
-    .labelline strong{ font-size:14px; }
-    .value{
-      font-variant-numeric: tabular-nums;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 900;
-    }
-    input[type="range"]{
-      width:100%;
-      accent-color: var(--accent);
-    }
-    select{
-      width:100%;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border:1px solid #e6eef7;
-      background:#ffffff;
-      font-weight:900;
-      color: var(--ink);
-    }
-
     footer{
       max-width:1100px;
       margin: 0 auto;
@@ -269,40 +212,39 @@
 
 <body>
 <header>
-  <h1>🎵 Muzikale Driehoek</h1>
+  <h1>🎵 Muzikale Driehoek – Levels</h1>
   <p class="subtitle">
-    <b>Spel 1:</b> klik op de muzieknootjes bij de hoeken → laagste toon = grootste hoek → kies de langste zijde.<br/>
-    <b>Spel 2:</b> opnieuw luisteren + met blokjes checken: kan de driehoek sluiten?
+    <b>Belangrijk:</b> de <b>grootste hoek</b> krijgt de <b>laagste toon</b>.
+    De <b>langste zijde</b> ligt <b>tegenover</b> de grootste hoek.
   </p>
 </header>
 
 <div class="wrap">
-  <!-- PAGINA 1 -->
+  <!-- PAGINA / SPEL 1 -->
   <section id="page1" class="page active">
     <div class="card">
       <div class="topbar">
-        <div class="pill">Spel 1 • Hoeken & tonen</div>
-        <button id="toGame2Top" class="btn-ghost" type="button" disabled>Ga naar Spel 2 →</button>
+        <div class="pill" id="p1Level">Spel 1 • Level 1/5</div>
+        <button id="goGame2Top" class="btn-ghost" type="button" disabled>Ga naar Spel 2 →</button>
       </div>
 
-      <canvas id="cv1" width="980" height="520" aria-label="Driehoek met muzieknoten (spel 1)"></canvas>
+      <canvas id="cv1" width="980" height="520" aria-label="Spel 1 canvas"></canvas>
 
       <div class="hint" id="hint1">
-        Uitleg: <b>de grootste hoek krijgt de laagste toon</b> (klik op de nootjes).
-        De <b>langste zijde</b> ligt <b>tegenover</b> de grootste hoek. Welke zijde is dus het langst?
+        Klik op de <b>nootjes bij de hoeken</b>. Zoek de <b>laagste toon</b> → dat is de <b>grootste hoek</b>.
+        Kies daarna welke zijde (a/b/c) tegenover die hoek ligt (= langste zijde).
       </div>
     </div>
 
     <div class="card">
       <div class="panel-title">
         <h2>Vraag (Spel 1)</h2>
-        <div class="pill">klik eerst op de nootjes</div>
+        <div class="pill">5 levels</div>
       </div>
 
       <div class="mcq">
         <div class="small">
-          Kies de langste zijde (a / b / c).<br/>
-          <b>Tip:</b> zoek eerst de <b>laagste toon</b> → dat is de <b>grootste hoek</b> → kijk welke zijde daartegenover ligt.
+          Welke zijde is het <b>langst</b>?
         </div>
 
         <div class="choiceRow" id="choices1">
@@ -311,759 +253,719 @@
           <button class="choice c" data-pick="c" type="button">c</button>
         </div>
 
-        <button id="toGame2" class="btn" type="button" disabled>✅ Goed! Ga naar Spel 2</button>
+        <button id="next1" class="btn" type="button" disabled>Volgende level →</button>
+        <button id="goGame2" class="btn-ghost" type="button" disabled>Ga naar Spel 2</button>
       </div>
     </div>
   </section>
 
-  <!-- PAGINA 2 -->
+  <!-- PAGINA / SPEL 2 -->
   <section id="page2" class="page">
     <div class="card">
       <div class="topbar">
-        <div class="pill">Spel 2 • Driehoeksongelijkheid</div>
-        <button id="backToGame1" class="btn-ghost" type="button">← Terug naar Spel 1</button>
+        <div class="pill" id="p2Level">Spel 2 • Level 1/5</div>
+        <button id="back1" class="btn-ghost" type="button">← Terug naar Spel 1</button>
       </div>
 
-      <canvas id="cv2" width="980" height="520" aria-label="Driehoek met blokjes (spel 2)"></canvas>
+      <canvas id="cv2" width="980" height="520" aria-label="Spel 2 canvas"></canvas>
 
       <div class="hint" id="hint2">
-        Stap 1: klik op de nootjes bij de hoeken. <b>Laagste toon = grootste hoek</b>.<br/>
+        Stap 1: klik op de nootjes bij de hoeken (laagste toon = grootste hoek).<br/>
         Stap 2: kies de <b>langste zijde</b> (tegenover die hoek).<br/>
-        Stap 3: kijk naar de blokjes: <b>kan de driehoek sluiten?</b> (langste zijde <b>&lt;</b> som van de andere twee).
+        Stap 3: kies <b>kan sluiten?</b> Gebruik de blokjes (max 8 per lijn).
       </div>
     </div>
 
     <div class="card">
       <div class="panel-title">
         <h2>Vragen (Spel 2)</h2>
-        <div class="pill">blokjes helpen!</div>
+        <div class="pill">3 stappen</div>
       </div>
 
-      <div class="settings">
-        <div class="control">
-          <div class="labelline">
-            <strong>Pas lengtes aan (cm)</strong>
-            <span class="value">max 20 (blokjes)</span>
-          </div>
-
-          <div class="labelline"><strong>a</strong><span class="value"><span id="va">7</span></span></div>
-          <input id="ra" type="range" min="2" max="20" value="7" />
-
-          <div class="labelline" style="margin-top:10px"><strong>b</strong><span class="value"><span id="vb">9</span></span></div>
-          <input id="rb" type="range" min="2" max="20" value="9" />
-
-          <div class="labelline" style="margin-top:10px"><strong>c</strong><span class="value"><span id="vc">12</span></span></div>
-          <input id="rc" type="range" min="2" max="20" value="12" />
-
-          <div style="margin-top:10px" class="labelline">
-            <strong>Voorbeeld</strong><span class="value">snel</span>
-          </div>
-          <select id="preset">
-            <option value="">— kies —</option>
-            <option value="3,4,5">✅ (3,4,5) sluit</option>
-            <option value="6,6,6">✅ (6,6,6) sluit</option>
-            <option value="2,3,5">❌ (2,3,5) sluit niet</option>
-            <option value="4,6,12">❌ (4,6,12) sluit niet</option>
-          </select>
-
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-            <button id="random" class="btn-ghost" type="button">🎲 Willekeurig</button>
-            <button id="reset" class="btn-ghost" type="button">↩️ Reset</button>
-          </div>
+      <div class="mcq">
+        <div class="small"><b>Stap 1:</b> Welke zijde is het langst?</div>
+        <div class="choiceRow" id="choices2">
+          <button class="choice a" data-pick2="a" type="button">a</button>
+          <button class="choice b" data-pick2="b" type="button">b</button>
+          <button class="choice c" data-pick2="c" type="button">c</button>
         </div>
 
-        <!-- Stap 1: kies langste zijde -->
-        <div class="control">
-          <div class="labelline">
-            <strong>Stap 1: welke zijde is het langst?</strong>
-            <span class="value">tegenover laagste toon</span>
-          </div>
-
-          <div class="choiceRow" id="choices2">
-            <button class="choice a" data-pick2="a" type="button">a</button>
-            <button class="choice b" data-pick2="b" type="button">b</button>
-            <button class="choice c" data-pick2="c" type="button">c</button>
-          </div>
-
-          <div class="small" id="step2lock">
-            Kies eerst correct de langste zijde. Dan komt de sluit-vraag.
-          </div>
+        <div class="small"><b>Stap 2:</b> Kan de driehoek sluiten?</div>
+        <div class="choiceRow" id="choicesClose">
+          <button class="choice" data-close="yes" type="button" disabled>Ja ✅</button>
+          <button class="choice" data-close="no"  type="button" disabled>Nee ❌</button>
         </div>
 
-        <!-- Stap 2: kan sluiten? -->
-        <div class="control">
-          <div class="labelline">
-            <strong>Stap 2: kan de driehoek sluiten?</strong>
-            <span class="value">vergelijk blokjes</span>
-          </div>
+        <div class="hint" id="hint2b">Nog geen antwoord gegeven.</div>
 
-          <div class="choiceRow" id="choicesClose">
-            <button class="choice" data-close="yes" type="button" disabled>Ja, kan sluiten ✅</button>
-            <button class="choice" data-close="no" type="button" disabled>Nee, kan niet sluiten ❌</button>
-          </div>
-
-          <div class="small" id="closeHelp">
-            Tip: tel de blokjes van de twee andere zijden samen. De langste zijde moet <b>minder</b> blokjes hebben.
-          </div>
-        </div>
-
-        <div class="hint" id="hint2b">
-          Nog geen antwoord gegeven.
-        </div>
+        <button id="next2" class="btn" type="button" disabled>Volgende level →</button>
       </div>
     </div>
   </section>
 </div>
 
 <footer>
-  GitHub Pages: zet dit bestand als <b>index.html</b> in je repo en activeer Pages (main / root).
+  Zet dit als <b>index.html</b> in je GitHub repo en activeer GitHub Pages (main / root).
 </footer>
 
 <script>
-  /************************************************************
-   *  CORE IDEE
-   *  - Tonen horen bij HOEKEN (niet bij zijden)
-   *  - Grootste hoek = laagste toon
-   *  - Langste zijde ligt tegenover grootste hoek
-   *  - Spel 2: driehoek kan sluiten als maxSide < somAndereTwee
-   ************************************************************/
+/************************************************************
+ * LEVELS
+ * - Spel 1: 5 levels met (geldige) driehoeken
+ * - Spel 2: 5 levels met mix (kan sluiten / kan niet sluiten)
+ *
+ * BELANGRIJK (jouw punt):
+ * - We "verraden" het antwoord niet visueel.
+ * - Dus: vóór de leerling op "Ja/Nee" klikt, tekenen we altijd
+ *   neutraal (jouw bestaande clamped/plat logica).
+ * - PAS NA het antwoord onthullen we: bij "kan niet sluiten"
+ *   tekenen we een zichtbaar "gat" (open).
+ ************************************************************/
 
-  // ---------- Audio ----------
-  let audioCtx = null;
-  function ensureAudio(){
-    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if(audioCtx.state === "suspended") audioCtx.resume();
+// ---------- LEVEL DATA ----------
+const GAME1_LEVELS = [
+  {a:7,  b:9,  c:12},
+  {a:5,  b:8,  c:9},
+  {a:6,  b:10, c:11},
+  {a:8,  b:13, c:14},
+  {a:9,  b:14, c:17}
+];
+
+const GAME2_LEVELS = [
+  {a:3,  b:4,  c:5},   // kan sluiten
+  {a:2,  b:3,  c:5},   // kan niet sluiten (gelijk)
+  {a:4,  b:6,  c:12},  // kan niet sluiten
+  {a:6,  b:7,  c:10},  // kan sluiten
+  {a:8,  b:9,  c:16}   // kan niet sluiten
+];
+
+// ---------- Pages ----------
+const page1 = document.getElementById("page1");
+const page2 = document.getElementById("page2");
+function gotoPage(n){
+  if(n===1){
+    page1.classList.add("active"); page2.classList.remove("active");
+    drawGame1();
+  }else{
+    page2.classList.add("active"); page1.classList.remove("active");
+    drawGame2();
   }
+  window.scrollTo({top:0, behavior:"instant"});
+}
 
-  function playTone(freq, startTime, duration=0.22){
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    const filter = audioCtx.createBiquadFilter();
+// ---------- Audio ----------
+let audioCtx = null;
+function ensureAudio(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === "suspended") audioCtx.resume();
+}
+function playTone(freq, startTime, duration=0.22){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const filter = audioCtx.createBiquadFilter();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(freq, startTime);
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(2000, startTime);
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.exponentialRampToValueAtTime(0.35, startTime + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+  osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(startTime); osc.stop(startTime + duration + 0.02);
+}
+function playGoodChord(){
+  const t0 = audioCtx.currentTime + 0.02;
+  playTone(330, t0, 0.25);
+  playTone(412.5, t0, 0.25);
+  playTone(495, t0, 0.25);
+}
+function playBadSound(){
+  const t0 = audioCtx.currentTime + 0.02;
+  playTone(180, t0, 0.25);
+  playTone(430, t0 + 0.05, 0.20);
+  playTone(452, t0 + 0.05, 0.20);
+}
 
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(freq, startTime);
+// GROTERE HOEK => LAGERE TOON
+function angleToFreq(angleDeg){
+  const minA = 10, maxA = 170;
+  const a = Math.max(minA, Math.min(maxA, angleDeg));
+  const t = (a - minA) / (maxA - minA);
+  const high = 880;
+  const low  = 220;
+  return high + (low - high) * t;
+}
 
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(2000, startTime);
+// ---------- Math ----------
+function closesTriangle(a,b,c){
+  return (a < b + c) && (b < a + c) && (c < a + b);
+}
+function longestSide(a,b,c){
+  const m = Math.max(a,b,c);
+  return (m===a) ? "a" : (m===b ? "b" : "c");
+}
+function computeAngles(a,b,c){
+  // law of cosines with clamp, so it also behaves for "sluit niet" (flat)
+  function clamp(x){ return Math.max(-1, Math.min(1, x)); }
+  const A = Math.acos(clamp((b*b + c*c - a*a) / (2*b*c))) * 180/Math.PI;
+  const B = Math.acos(clamp((a*a + c*c - b*b) / (2*a*c))) * 180/Math.PI;
+  const C = 180 - A - B;
+  return {A,B,C};
+}
 
-    gain.gain.setValueAtTime(0.0001, startTime);
-    gain.gain.exponentialRampToValueAtTime(0.35, startTime + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+// ---------- Canvas drawing helpers ----------
+function lengthsToPixels(a,b,c, maxPx=420){
+  const maxSide = Math.max(a,b,c);
+  const scale = maxPx / maxSide;
+  return {a:a*scale, b:b*scale, c:c*scale, scale};
+}
 
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(audioCtx.destination);
+/**
+ * Neutrale driehoekpunten:
+ * - Als hij kan sluiten: echte driehoek
+ * - Als hij niet kan sluiten: plat (y=0), zodat je NIET verraadt vóór reveal
+ *
+ * Extra: we berekenen ook C1/C2 voor "open" reveal, maar die gebruiken we
+ * pas nadat de leerling een Ja/Nee antwoord heeft gegeven.
+ */
+function computeTrianglePoints(a,b,c, W, H){
+  const px = lengthsToPixels(a,b,c, 420);
+  const A = {x: W*0.22, y: H*0.72};
+  const B = {x: A.x + px.c, y: A.y};
 
-    osc.start(startTime);
-    osc.stop(startTime + duration + 0.02);
+  // basis cosines-constructie (kan negatief worden bij niet-sluiten)
+  const x = (px.b*px.b - px.a*px.a + px.c*px.c) / (2*px.c);
+  const yRaw = (px.b*px.b - x*x);
+  const y = Math.sqrt(Math.max(0, yRaw)); // invalid -> 0 (flat)
+  const C = {x: A.x + x, y: A.y - y};
+
+  // open-reveal armen (altijd berekend, maar optioneel getekend)
+  const canClose = closesTriangle(a,b,c);
+
+  // gap grootte gebaseerd op "tekort" (max - som anderen)
+  const maxSide = Math.max(a,b,c);
+  const sumOthers = (a+b+c) - maxSide;
+  const gapUnits = Math.max(1, Math.ceil(maxSide - sumOthers)); // minimaal 1
+  const gapPx = gapUnits * px.scale;
+
+  // vaste richtingen omhoog (ziet er consistent uit)
+  const angFromA = -55 * Math.PI/180;
+  const angFromB = -125 * Math.PI/180;
+
+  const C1 = { x: A.x + px.b * Math.cos(angFromA), y: A.y + px.b * Math.sin(angFromA) };
+  const C2 = { x: B.x + px.a * Math.cos(angFromB), y: B.y + px.a * Math.sin(angFromB) };
+
+  // duw uit elkaar zodat een zichtbaar gat ontstaat
+  C1.x -= gapPx * 0.35;
+  C2.x += gapPx * 0.35;
+
+  const CgapMid = { x:(C1.x+C2.x)/2, y:(C1.y+C2.y)/2 };
+
+  return {A,B,C, C1, C2, CgapMid, px, canClose};
+}
+
+function drawGrid(ctx, W, H){
+  ctx.save();
+  ctx.globalAlpha = 0.06;
+  ctx.strokeStyle = "#123";
+  for(let x=0; x<=W; x+=40){
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
   }
-
-  // map hoek (in graden) -> frequentie
-  // GROTERE hoek => LAGERE frequentie
-  function angleToFreq(angleDeg){
-    const minA = 20, maxA = 140;                 // praktische clamp
-    const a = Math.max(minA, Math.min(maxA, angleDeg));
-    const t = (a - minA) / (maxA - minA);        // 0..1
-    const high = 880;                             // kleine hoek -> hoog
-    const low  = 220;                             // grote hoek -> laag
-    return high + (low - high) * t;
+  for(let y=0; y<=H; y+=40){
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
   }
+  ctx.restore();
+}
+function drawStick(ctx, p, q, thick, color){
+  ctx.save();
+  ctx.lineCap="round";
+  ctx.strokeStyle=color;
+  ctx.lineWidth=thick;
+  ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke();
+  ctx.strokeStyle="rgba(255,255,255,0.55)";
+  ctx.lineWidth=Math.max(2, thick*0.25);
+  ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke();
+  ctx.restore();
+}
+function drawText(ctx, x, y, text, size=16, weight=900, alpha=1){
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.font = `${weight} ${size}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+  ctx.fillStyle="#123";
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
 
-  function playGoodChord(){
-    const t0 = audioCtx.currentTime + 0.02;
-    playTone(330, t0, 0.25);
-    playTone(412.5, t0, 0.25);
-    playTone(495, t0, 0.25);
-  }
+// note circles
+function drawNote(ctx, x, y, active=false){
+  ctx.save();
+  ctx.beginPath();
+  ctx.fillStyle = active ? "rgba(42,127,255,0.18)" : "rgba(42,127,255,0.10)";
+  ctx.strokeStyle = "rgba(42,127,255,0.35)";
+  ctx.lineWidth = 2;
+  ctx.arc(x, y, 18, 0, Math.PI*2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.font = "1000 22px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+  ctx.fillStyle = "rgba(18,34,51,0.92)";
+  ctx.fillText("♪", x-7, y+8);
+  ctx.restore();
+}
+function dist2(x1,y1,x2,y2){ const dx=x1-x2, dy=y1-y2; return dx*dx+dy*dy; }
+function computeNotePositions(tri){
+  // Gebruik altijd tri.C (de "neutrale" top) voor klikbaarheid;
+  // bij reveal (open) laten we de noten nog steeds op die plek.
+  const {A,B,C} = tri;
+  const off = (pt, dx, dy)=>({x:pt.x+dx, y:pt.y+dy, r:20});
+  return { A: off(A,-24,-26), B: off(B,+10,-26), C: off(C,-10,-34) };
+}
 
-  function playBadSound(){
-    const t0 = audioCtx.currentTime + 0.02;
-    playTone(180, t0, 0.25);
-    playTone(430, t0 + 0.05, 0.20);
-    playTone(452, t0 + 0.05, 0.20);
-  }
+// blocks drawn (max 8 per row)
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
+    const rr = Math.min(r, w/2, h/2);
+    this.beginPath();
+    this.moveTo(x+rr,y);
+    this.arcTo(x+w,y, x+w,y+h, rr);
+    this.arcTo(x+w,y+h, x,y+h, rr);
+    this.arcTo(x,y+h, x,y, rr);
+    this.arcTo(x,y, x+w,y, rr);
+    this.closePath();
+    return this;
+  };
+}
+function drawBlocks(ctx, mid, value, color, W){
+  const size = 14, gap = 4;
+  const perRow = 8;
+  const rows = Math.max(1, Math.ceil(value / perRow));
 
-  // ---------- Wiskunde ----------
-  // standaard notatie: zijden a=BC, b=AC, c=AB
-  // hoeken: A tegenover a, B tegenover b, C tegenover c
-  function computeAngles(a,b,c){
-    // law of cosines
-    function clamp(x){ return Math.max(-1, Math.min(1, x)); }
-    const A = Math.acos(clamp((b*b + c*c - a*a) / (2*b*c))) * 180/Math.PI;
-    const B = Math.acos(clamp((a*a + c*c - b*b) / (2*a*c))) * 180/Math.PI;
-    const C = 180 - A - B;
-    return {A,B,C};
-  }
+  const totalWidth = perRow*size + (perRow-1)*gap;
+  let startX = mid.x - totalWidth/2;
+  let startY = mid.y;
 
-  function longestSide(a,b,c){
-    const m = Math.max(a,b,c);
-    return (m===a) ? "a" : (m===b ? "b" : "c");
-  }
+  startX = Math.max(20, Math.min(W - totalWidth - 20, startX));
 
-  function closesTriangle(a,b,c){
-    // echte driehoek (strikt)
-    return (a < b + c) && (b < a + c) && (c < a + b);
-  }
+  ctx.save();
+  for(let r=0; r<rows; r++){
+    for(let i=0; i<perRow; i++){
+      const idx = r*perRow + i + 1;
+      const x = startX + i*(size+gap);
+      const y = startY + r*(size+gap);
 
-  // ---------- Canvas drawing (triangle + note icons + blocks) ----------
-  function lengthsToPixels(a,b,c, maxPx=420){
-    const maxSide = Math.max(a,b,c);
-    const scale = maxPx / maxSide;
-    return {a:a*scale, b:b*scale, c:c*scale};
-  }
-
-  // compute triangle points (A,B,C) with AB=c, AC=b, BC=a
-  function computeTrianglePoints(a,b,c, W, H){
-    const px = lengthsToPixels(a,b,c, 420);
-    const A = {x: W*0.22, y: H*0.72};
-    const B = {x: A.x + px.c, y: A.y};
-
-    // find C from circle intersection:
-    // x = (b^2 - a^2 + c^2) / (2c)
-    const x = (px.b*px.b - px.a*px.a + px.c*px.c) / (2*px.c);
-    const y = Math.sqrt(Math.max(0, px.b*px.b - x*x));
-    const C = {x: A.x + x, y: A.y - y};
-
-    return {A,B,C, px};
-  }
-
-  function drawGrid(ctx, W, H){
-    ctx.save();
-    ctx.globalAlpha = 0.06;
-    ctx.strokeStyle = "#123";
-    for(let x=0; x<=W; x+=40){
-      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+      ctx.beginPath();
+      ctx.roundRect(x, y, size, size, 4);
+      ctx.fillStyle = (idx <= value) ? color : "rgba(18,34,51,0.08)";
+      ctx.strokeStyle = "rgba(18,34,51,0.18)";
+      ctx.lineWidth = 1;
+      ctx.fill();
+      ctx.stroke();
     }
-    for(let y=0; y<=H; y+=40){
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ---------- Game 1 state ----------
+const cv1 = document.getElementById("cv1");
+const ctx1 = cv1.getContext("2d");
+const p1Level = document.getElementById("p1Level");
+const hint1 = document.getElementById("hint1");
+const choices1 = document.getElementById("choices1");
+const next1 = document.getElementById("next1");
+const goGame2 = document.getElementById("goGame2");
+const goGame2Top = document.getElementById("goGame2Top");
+
+let g1Index = 0;
+let g1Solved = false;
+let g1LastPlayed = null;
+let g1DrawData = null;
+
+function currentG1(){ return GAME1_LEVELS[g1Index]; }
+
+function drawGame1(){
+  const {a,b,c} = currentG1();
+  const W = ctx1.canvas.width, H = ctx1.canvas.height;
+  ctx1.clearRect(0,0,W,H);
+  drawGrid(ctx1,W,H);
+
+  p1Level.textContent = `Spel 1 • Level ${g1Index+1}/5`;
+
+  drawText(ctx1, 18, 34, "Spel 1: klik op de nootjes bij de hoeken", 22, 1000, 1);
+
+  const tri = computeTrianglePoints(a,b,c, W, H);
+  const notes = computeNotePositions(tri);
+
+  // sides (a=BC, b=AC, c=AB)
+  drawStick(ctx1, tri.B, tri.C, 12, "rgba(255,107,107,0.95)");
+  drawStick(ctx1, tri.A, tri.C, 12, "rgba(77,171,247,0.95)");
+  drawStick(ctx1, tri.A, tri.B, 12, "rgba(105,219,124,0.95)");
+
+  // labels
+  drawText(ctx1, (tri.B.x+tri.C.x)/2 - 8, (tri.B.y+tri.C.y)/2 - 10, "a", 18, 1000, .9);
+  drawText(ctx1, (tri.A.x+tri.C.x)/2 - 8, (tri.A.y+tri.C.y)/2 - 10, "b", 18, 1000, .9);
+  drawText(ctx1, (tri.A.x+tri.B.x)/2 - 8, (tri.A.y+tri.B.y)/2 + 26, "c", 18, 1000, .9);
+
+  // vertices
+  drawText(ctx1, tri.A.x - 18, tri.A.y + 24, "A", 18, 1000, .85);
+  drawText(ctx1, tri.B.x + 8,  tri.B.y + 24, "B", 18, 1000, .85);
+  drawText(ctx1, tri.C.x - 18, tri.C.y - 10, "C", 18, 1000, .85);
+
+  // notes
+  drawNote(ctx1, notes.A.x, notes.A.y, g1LastPlayed==="A");
+  drawNote(ctx1, notes.B.x, notes.B.y, g1LastPlayed==="B");
+  drawNote(ctx1, notes.C.x, notes.C.y, g1LastPlayed==="C");
+
+  ctx1.save();
+  ctx1.font = "800 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+  ctx1.fillStyle = "rgba(18,34,51,0.72)";
+  ctx1.fillText("Grootste hoek → laagste toon. Langste zijde ligt tegenover die hoek.", 18, H-18);
+  ctx1.restore();
+
+  g1DrawData = {tri, notes, angles: computeAngles(a,b,c)};
+}
+
+function playAngleToneGame1(vertex){
+  ensureAudio();
+  const {a,b,c} = currentG1();
+  const ang = computeAngles(a,b,c);
+  const val = (vertex==="A") ? ang.A : (vertex==="B" ? ang.B : ang.C);
+  playTone(angleToFreq(val), audioCtx.currentTime + 0.02, 0.22);
+  g1LastPlayed = vertex;
+  drawGame1();
+}
+
+function clearMCQ(container, attr){
+  container.querySelectorAll(`button[${attr}]`).forEach(b=>{
+    b.classList.remove("correct","wrong");
+  });
+}
+
+function handleG1Pick(pick){
+  clearMCQ(choices1, "data-pick");
+  const {a,b,c} = currentG1();
+  const correct = longestSide(a,b,c);
+
+  const btn = choices1.querySelector(`button[data-pick="${pick}"]`);
+  if(!btn) return;
+
+  if(pick === correct){
+    btn.classList.add("correct");
+    hint1.className = "hint good";
+    hint1.innerHTML = `✅ Juist! De laagste toon hoort bij de grootste hoek. Tegenover die hoek ligt de langste zijde: <b>${correct}</b>.`;
+    g1Solved = true;
+    next1.disabled = false;
+    ensureAudio(); playGoodChord();
+
+    if(g1Index === GAME1_LEVELS.length - 1){
+      goGame2.disabled = false;
+      goGame2Top.disabled = false;
     }
-    ctx.restore();
+  }else{
+    btn.classList.add("wrong");
+    hint1.className = "hint bad";
+    hint1.innerHTML = `❌ Nog niet. Klik opnieuw op de nootjes en zoek de <b>laagste toon</b>.`;
+    ensureAudio(); playBadSound();
   }
+}
 
-  function drawStick(ctx, p, q, thick, color){
-    ctx.save();
-    ctx.lineCap="round";
-    ctx.strokeStyle=color;
-    ctx.lineWidth=thick;
-    ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke();
-
-    ctx.strokeStyle="rgba(255,255,255,0.55)";
-    ctx.lineWidth=Math.max(2, thick*0.25);
-    ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke();
-    ctx.restore();
-  }
-
-  function drawLabel(ctx, x, y, text){
-    ctx.save();
-    ctx.font = "1000 18px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-    ctx.fillStyle="#123";
-    ctx.fillText(text, x, y);
-    ctx.restore();
-  }
-
-  function drawTitle(ctx, x, y, text){
-    ctx.save();
-    ctx.font = "1000 22px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-    ctx.fillStyle="#123";
-    ctx.fillText(text, x, y);
-    ctx.restore();
-  }
-
-  // note icon positions + click hit areas
-  function computeNotePositions(tri){
-    const {A,B,C} = tri;
-    // place note slightly away from vertex
-    function offset(pt, dx, dy){ return {x:pt.x+dx, y:pt.y+dy}; }
-    return {
-      A: { ...offset(A, -24, -26), r: 20 }, // at vertex A
-      B: { ...offset(B, +10, -26), r: 20 }, // at vertex B
-      C: { ...offset(C, -10, -34), r: 20 }  // at vertex C
-    };
-  }
-
-  function drawNote(ctx, x, y, active=false){
-    ctx.save();
-    ctx.beginPath();
-    ctx.fillStyle = active ? "rgba(42,127,255,0.18)" : "rgba(42,127,255,0.10)";
-    ctx.strokeStyle = "rgba(42,127,255,0.35)";
-    ctx.lineWidth = 2;
-    ctx.arc(x, y, 18, 0, Math.PI*2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.font = "1000 22px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-    ctx.fillStyle = "rgba(18,34,51,0.92)";
-    ctx.fillText("♪", x-7, y+8);
-    ctx.restore();
-  }
-
-  function dist2(x1,y1,x2,y2){
-    const dx=x1-x2, dy=y1-y2;
-    return dx*dx+dy*dy;
-  }
-
-  // blocks (rows of 10) drawn near each side midpoint
-  function drawBlocks(ctx, mid, value, color, W){
-    // value: number of dark blocks
-    // draw rows of 10, horizontal
-    const size = 14, gap = 4;
-    const perRow = 10;
-    const rows = Math.max(1, Math.ceil(value / perRow));
-
-    // center around midpoint
-    const totalWidth = perRow*size + (perRow-1)*gap;
-    let startX = mid.x - totalWidth/2;
-    let startY = mid.y;
-
-    // keep on canvas
-    startX = Math.max(20, Math.min(W - totalWidth - 20, startX));
-
-    ctx.save();
-    for(let r=0; r<rows; r++){
-      for(let i=0; i<perRow; i++){
-        const idx = r*perRow + i + 1;
-        const x = startX + i*(size+gap);
-        const y = startY + r*(size+gap);
-
-        ctx.beginPath();
-        ctx.roundRect(x, y, size, size, 4);
-        ctx.fillStyle = (idx <= value) ? color : "rgba(18,34,51,0.08)";
-        ctx.strokeStyle = "rgba(18,34,51,0.18)";
-        ctx.lineWidth = 1;
-        ctx.fill();
-        ctx.stroke();
-      }
-    }
-    ctx.restore();
-  }
-
-  // polyfill for roundRect in older browsers
-  if(!CanvasRenderingContext2D.prototype.roundRect){
-    CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
-      const rr = Math.min(r, w/2, h/2);
-      this.beginPath();
-      this.moveTo(x+rr,y);
-      this.arcTo(x+w,y, x+w,y+h, rr);
-      this.arcTo(x+w,y+h, x,y+h, rr);
-      this.arcTo(x,y+h, x,y, rr);
-      this.arcTo(x,y, x+w,y, rr);
-      this.closePath();
-      return this;
-    };
-  }
-
-  function drawGame1(ctx, a,b,c, lastPlayedVertex=null){
-    const W = ctx.canvas.width, H = ctx.canvas.height;
-    ctx.clearRect(0,0,W,H);
-    drawGrid(ctx,W,H);
-
-    drawTitle(ctx, 18, 34, "Spel 1: klik op de muzieknootjes bij de hoeken");
-
-    const tri = computeTrianglePoints(a,b,c, W, H);
-    const notes = computeNotePositions(tri);
-    const angles = computeAngles(a,b,c);
-
-    // triangle sides
-    drawStick(ctx, tri.B, tri.C, 12, "rgba(255,107,107,0.95)"); // BC = a
-    drawStick(ctx, tri.A, tri.C, 12, "rgba(77,171,247,0.95)");  // AC = b
-    drawStick(ctx, tri.A, tri.B, 12, "rgba(105,219,124,0.95)"); // AB = c
-
-    // labels
-    drawLabel(ctx, (tri.B.x+tri.C.x)/2 - 8, (tri.B.y+tri.C.y)/2 - 10, "a");
-    drawLabel(ctx, (tri.A.x+tri.C.x)/2 - 8, (tri.A.y+tri.C.y)/2 - 10, "b");
-    drawLabel(ctx, (tri.A.x+tri.B.x)/2 - 8, (tri.A.y+tri.B.y)/2 + 26, "c");
-
-    // vertex labels
-    drawLabel(ctx, tri.A.x - 18, tri.A.y + 24, "A");
-    drawLabel(ctx, tri.B.x + 8,  tri.B.y + 24, "B");
-    drawLabel(ctx, tri.C.x - 18, tri.C.y - 10, "C");
-
-    // notes
-    drawNote(ctx, notes.A.x, notes.A.y, lastPlayedVertex==="A");
-    drawNote(ctx, notes.B.x, notes.B.y, lastPlayedVertex==="B");
-    drawNote(ctx, notes.C.x, notes.C.y, lastPlayedVertex==="C");
-
-    // small info text
-    ctx.save();
-    ctx.font = "800 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-    ctx.fillStyle = "rgba(18,34,51,0.72)";
-    ctx.fillText("Grootste hoek → laagste toon. Langste zijde ligt tegenover die hoek.", 18, H-18);
-    ctx.restore();
-
-    return {tri, notes, angles};
-  }
-
-  function drawGame2(ctx, a,b,c, lastPlayedVertex=null, showBlocks=true){
-    const W = ctx.canvas.width, H = ctx.canvas.height;
-    ctx.clearRect(0,0,W,H);
-    drawGrid(ctx,W,H);
-
-    drawTitle(ctx, 18, 34, "Spel 2: luister + blokjes → kan de driehoek sluiten?");
-
-    const tri = computeTrianglePoints(a,b,c, W, H);
-    const notes = computeNotePositions(tri);
-    const angles = computeAngles(a,b,c);
-
-    // triangle sides (colors)
-    drawStick(ctx, tri.B, tri.C, 12, "rgba(255,107,107,0.95)"); // a
-    drawStick(ctx, tri.A, tri.C, 12, "rgba(77,171,247,0.95)");  // b
-    drawStick(ctx, tri.A, tri.B, 12, "rgba(105,219,124,0.95)"); // c
-
-    // labels
-    drawLabel(ctx, (tri.B.x+tri.C.x)/2 - 8, (tri.B.y+tri.C.y)/2 - 10, "a");
-    drawLabel(ctx, (tri.A.x+tri.C.x)/2 - 8, (tri.A.y+tri.C.y)/2 - 10, "b");
-    drawLabel(ctx, (tri.A.x+tri.B.x)/2 - 8, (tri.A.y+tri.B.y)/2 + 26, "c");
-
-    // vertex labels
-    drawLabel(ctx, tri.A.x - 18, tri.A.y + 24, "A");
-    drawLabel(ctx, tri.B.x + 8,  tri.B.y + 24, "B");
-    drawLabel(ctx, tri.C.x - 18, tri.C.y - 10, "C");
-
-    // notes
-    drawNote(ctx, notes.A.x, notes.A.y, lastPlayedVertex==="A");
-    drawNote(ctx, notes.B.x, notes.B.y, lastPlayedVertex==="B");
-    drawNote(ctx, notes.C.x, notes.C.y, lastPlayedVertex==="C");
-
-    // blocks under each side (positioned near side midpoints, offset outward)
-    if(showBlocks){
-      // midpoints
-      const mA = {x:(tri.B.x+tri.C.x)/2, y:(tri.B.y+tri.C.y)/2 + 26}; // near side a
-      const mB = {x:(tri.A.x+tri.C.x)/2 - 40, y:(tri.A.y+tri.C.y)/2 + 18}; // near side b
-      const mC = {x:(tri.A.x+tri.B.x)/2, y:(tri.A.y+tri.B.y)/2 + 40}; // near side c
-
-      drawBlocks(ctx, mA, a, "rgba(255,107,107,0.92)", W);
-      drawBlocks(ctx, mB, b, "rgba(77,171,247,0.92)", W);
-      drawBlocks(ctx, mC, c, "rgba(105,219,124,0.92)", W);
-
-      ctx.save();
-      ctx.font = "900 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.fillStyle = "rgba(18,34,51,0.72)";
-      ctx.fillText("Blokjes = lengtes. Donker = telt mee. Vergelijk: langste zijde < som van de andere twee.", 18, H-18);
-      ctx.restore();
-    }
-
-    return {tri, notes, angles};
-  }
-
-  // ---------- Pages / State ----------
-  const page1 = document.getElementById("page1");
-  const page2 = document.getElementById("page2");
-
-  const cv1 = document.getElementById("cv1");
-  const ctx1 = cv1.getContext("2d");
-  const cv2 = document.getElementById("cv2");
-  const ctx2 = cv2.getContext("2d");
-
-  const hint1 = document.getElementById("hint1");
-  const choices1 = document.getElementById("choices1");
-  const toGame2 = document.getElementById("toGame2");
-  const toGame2Top = document.getElementById("toGame2Top");
-
-  const backToGame1 = document.getElementById("backToGame1");
-  const hint2 = document.getElementById("hint2");
-  const hint2b = document.getElementById("hint2b");
-
-  // game2 controls
-  const ra = document.getElementById("ra");
-  const rb = document.getElementById("rb");
-  const rc = document.getElementById("rc");
-  const va = document.getElementById("va");
-  const vb = document.getElementById("vb");
-  const vc = document.getElementById("vc");
-  const preset = document.getElementById("preset");
-  const randomBtn = document.getElementById("random");
-  const resetBtn = document.getElementById("reset");
-
-  const choices2 = document.getElementById("choices2");
-  const step2lock = document.getElementById("step2lock");
-  const choicesClose = document.getElementById("choicesClose");
-  const closeHelp = document.getElementById("closeHelp");
-
-  // default lengths for game1 (fixed)
-  const game1Sides = {a:7, b:9, c:12};
-
-  // interaction memory for note highlight
-  let lastPlayed1 = null;
-  let lastPlayed2 = null;
-
-  // gating
-  let game1Solved = false;
-  let game2LongestSolved = false;
-  let pickedLongest2 = null;
-
-  // store draw data for click hit testing
-  let drawData1 = null;
-  let drawData2 = null;
-
-  // ---------- Utilities ----------
-  function clearMCQ(container, attr){
-    container.querySelectorAll(`button[${attr}]`).forEach(b=>{
-      b.classList.remove("correct","wrong");
-    });
-  }
-
-  function gotoPage(n){
-    if(n===1){
-      page1.classList.add("active");
-      page2.classList.remove("active");
-      // redraw
-      drawData1 = drawGame1(ctx1, game1Sides.a, game1Sides.b, game1Sides.c, lastPlayed1);
-    }else{
-      page2.classList.add("active");
-      page1.classList.remove("active");
-      // redraw
-      const s = getGame2Sides();
-      drawData2 = drawGame2(ctx2, s.a, s.b, s.c, lastPlayed2, true);
-    }
-    window.scrollTo({top:0, behavior:"instant"});
-  }
-
-  function getGame2Sides(){
-    return {a:Number(ra.value), b:Number(rb.value), c:Number(rc.value)};
-  }
-
-  function updateGame2Readouts(){
-    va.textContent = ra.value;
-    vb.textContent = rb.value;
-    vc.textContent = rc.value;
-
-    // changing lengths resets answers
-    game2LongestSolved = false;
-    pickedLongest2 = null;
-    clearMCQ(choices2, "data-pick2");
-    clearMCQ(choicesClose, "data-close");
-    choicesClose.querySelectorAll("button").forEach(b=> b.disabled = true);
-    hint2b.className = "hint";
-    hint2b.textContent = "Nog geen antwoord gegeven.";
-    step2lock.textContent = "Kies eerst correct de langste zijde. Dan komt de sluit-vraag.";
-
-    // redraw
-    const s = getGame2Sides();
-    drawData2 = drawGame2(ctx2, s.a, s.b, s.c, lastPlayed2, true);
-  }
-
-  function randInt(min,max){
-    return Math.floor(Math.random()*(max-min+1))+min;
-  }
-
-  function setRandomGame2(){
-    const wantClose = Math.random() < 0.5;
-    let a,b,c;
-    const min = 2, max = 20;
-    if(wantClose){
-      a = randInt(min,max);
-      b = randInt(min,max);
-      const low = Math.max(min, Math.abs(a-b)+1);
-      const high = Math.min(max, a+b-1);
-      c = (low<=high) ? randInt(low,high) : randInt(min,max);
-    }else{
-      a = randInt(min,max);
-      b = randInt(min,max);
-      c = Math.min(max, a+b + randInt(0,6));
-      const L = Math.max(a,b,c);
-      const sum = a+b+c - L;
-      if(L < sum) c = Math.min(max, a+b); // maak net fout
-    }
-    ra.value = String(a);
-    rb.value = String(b);
-    rc.value = String(c);
-    updateGame2Readouts();
-  }
-
-  function resetGame2(){
-    ra.value="7"; rb.value="9"; rc.value="12";
-    preset.value="";
-    updateGame2Readouts();
-  }
-
-  // ---------- Game 1 logic ----------
-  function correctLongestFromAngles(a,b,c){
-    // grootste hoek = laagste toon, langste zijde ligt er tegenover.
-    // grootste hoek is tegenover langste zijde, dus answer is gewoon langste zijde.
-    return longestSide(a,b,c);
-  }
-
-  function handleGame1Pick(pick){
+function nextG1(){
+  if(!g1Solved) return;
+  if(g1Index < GAME1_LEVELS.length - 1){
+    g1Index++;
+    g1Solved = false;
+    g1LastPlayed = null;
+    next1.disabled = true;
     clearMCQ(choices1, "data-pick");
-    const correct = correctLongestFromAngles(game1Sides.a, game1Sides.b, game1Sides.c);
-    const btn = choices1.querySelector(`button[data-pick="${pick}"]`);
-    if(!btn) return;
+    hint1.className = "hint";
+    hint1.innerHTML = `Nieuw level! Klik op de nootjes en vind de langste zijde.`;
+    drawGame1();
+  }else{
+    hint1.className = "hint good";
+    hint1.innerHTML = `🎉 Spel 1 is klaar! Je mag nu naar <b>Spel 2</b>.`;
+    goGame2.disabled = false;
+    goGame2Top.disabled = false;
+  }
+}
 
-    if(pick === correct){
-      btn.classList.add("correct");
-      hint1.className = "hint good";
-      hint1.innerHTML = `✅ Juist! De <b>laagste toon</b> hoort bij de <b>grootste hoek</b>.
-        De zijde tegenover die hoek is de <b>langste</b>: <b>${correct}</b>.`;
-      game1Solved = true;
-      toGame2.disabled = false;
-      toGame2Top.disabled = false;
-      toGame2.textContent = "✅ Goed! Ga naar Spel 2";
-      // little success sound (optional)
-      ensureAudio(); playGoodChord();
+// canvas click hit test game1 notes
+cv1.addEventListener("click", (e)=>{
+  if(!g1DrawData) return;
+  const rect = cv1.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (cv1.width / rect.width);
+  const y = (e.clientY - rect.top) * (cv1.height / rect.height);
+  const n = g1DrawData.notes;
+  const hit = (key)=> dist2(x,y,n[key].x,n[key].y) <= (n[key].r*n[key].r);
+  if(hit("A")) return playAngleToneGame1("A");
+  if(hit("B")) return playAngleToneGame1("B");
+  if(hit("C")) return playAngleToneGame1("C");
+});
+
+choices1.addEventListener("click", (e)=>{
+  const btn = e.target.closest("button[data-pick]");
+  if(!btn) return;
+  handleG1Pick(btn.dataset.pick);
+});
+
+next1.addEventListener("click", nextG1);
+goGame2.addEventListener("click", ()=>gotoPage(2));
+goGame2Top.addEventListener("click", ()=>gotoPage(2));
+
+// ---------- Game 2 state ----------
+const cv2 = document.getElementById("cv2");
+const ctx2 = cv2.getContext("2d");
+const p2Level = document.getElementById("p2Level");
+const hint2 = document.getElementById("hint2");
+const hint2b = document.getElementById("hint2b");
+const choices2 = document.getElementById("choices2");
+const choicesClose = document.getElementById("choicesClose");
+const next2 = document.getElementById("next2");
+const back1 = document.getElementById("back1");
+
+let g2Index = 0;
+let g2LastPlayed = null;
+let g2DrawData = null;
+let g2LongestSolved = false;
+let g2CloseSolved = false;
+
+// 🔥 Nieuw: pas na het Ja/Nee-antwoord onthullen we open/gesloten tekening
+let g2RevealClosure = false;
+
+function currentG2(){ return GAME2_LEVELS[g2Index]; }
+
+function drawGame2(){
+  const {a,b,c} = currentG2();
+  const W = ctx2.canvas.width, H = ctx2.canvas.height;
+  ctx2.clearRect(0,0,W,H);
+  drawGrid(ctx2,W,H);
+
+  p2Level.textContent = `Spel 2 • Level ${g2Index+1}/5`;
+
+  drawText(ctx2, 18, 34, "Spel 2: luister + blokjes → kan de driehoek sluiten?", 22, 1000, 1);
+
+  const tri = computeTrianglePoints(a,b,c, W, H);
+  const notes = computeNotePositions(tri);
+
+  // ---------------------------------------------
+  // TEKENEN:
+  // - Voor reveal: altijd neutraal (jouw 3-sticks versie)
+  // - Na reveal: als kan sluiten -> normaal, else -> open gap
+  // ---------------------------------------------
+  if(!g2RevealClosure){
+    // NEUTRAAL (verraadt niets)
+    drawStick(ctx2, tri.B, tri.C, 12, "rgba(255,107,107,0.95)"); // a
+    drawStick(ctx2, tri.A, tri.C, 12, "rgba(77,171,247,0.95)");  // b
+    drawStick(ctx2, tri.A, tri.B, 12, "rgba(105,219,124,0.95)"); // c
+  }else{
+    if(tri.canClose){
+      // REVEAL: sluitend
+      drawStick(ctx2, tri.B, tri.C, 12, "rgba(255,107,107,0.95)"); // a
+      drawStick(ctx2, tri.A, tri.C, 12, "rgba(77,171,247,0.95)");  // b
+      drawStick(ctx2, tri.A, tri.B, 12, "rgba(105,219,124,0.95)"); // c
     }else{
-      btn.classList.add("wrong");
-      hint1.className = "hint bad";
-      hint1.innerHTML = `❌ Niet helemaal.
-        Tip: klik op de nootjes en zoek de <b>laagste toon</b> (grootste hoek).
-        Kijk dan welke zijde daar tegenover ligt.`;
-      ensureAudio(); playBadSound();
+      // REVEAL: NIET sluitend -> open met "gat"
+      drawStick(ctx2, tri.A, tri.B, 12, "rgba(105,219,124,0.95)"); // c (basis)
+      drawStick(ctx2, tri.A, tri.C1, 12, "rgba(77,171,247,0.95)"); // b
+      drawStick(ctx2, tri.B, tri.C2, 12, "rgba(255,107,107,0.95)"); // a
+
+      // gat markeren
+      ctx2.save();
+      ctx2.setLineDash([8,6]);
+      ctx2.lineWidth = 4;
+      ctx2.strokeStyle = "rgba(229,57,53,0.65)";
+      ctx2.beginPath();
+      ctx2.moveTo(tri.C1.x, tri.C1.y);
+      ctx2.lineTo(tri.C2.x, tri.C2.y);
+      ctx2.stroke();
+      ctx2.restore();
+
+      drawText(ctx2, tri.CgapMid.x - 78, tri.CgapMid.y - 10, "kan niet sluiten", 16, 1000, 0.9);
     }
   }
 
-  // clicking notes in game1
-  function playAngleToneGame1(vertex){
-    ensureAudio();
-    const {A,B,C} = computeAngles(game1Sides.a, game1Sides.b, game1Sides.c);
-    const ang = (vertex==="A")?A:(vertex==="B")?B:C;
-    const f = angleToFreq(ang);
-    playTone(f, audioCtx.currentTime + 0.02, 0.22);
-    lastPlayed1 = vertex;
-    drawData1 = drawGame1(ctx1, game1Sides.a, game1Sides.b, game1Sides.c, lastPlayed1);
-  }
+  // labels (blijven op de neutrale segmenten gebaseerd)
+  drawText(ctx2, (tri.B.x+tri.C.x)/2 - 8, (tri.B.y+tri.C.y)/2 - 10, "a", 18, 1000, .9);
+  drawText(ctx2, (tri.A.x+tri.C.x)/2 - 8, (tri.A.y+tri.C.y)/2 - 10, "b", 18, 1000, .9);
+  drawText(ctx2, (tri.A.x+tri.B.x)/2 - 8, (tri.A.y+tri.B.y)/2 + 26, "c", 18, 1000, .9);
 
-  // ---------- Game 2 logic ----------
-  function handleGame2PickLongest(pick){
-    clearMCQ(choices2, "data-pick2");
+  // vertices
+  drawText(ctx2, tri.A.x - 18, tri.A.y + 24, "A", 18, 1000, .85);
+  drawText(ctx2, tri.B.x + 8,  tri.B.y + 24, "B", 18, 1000, .85);
+  drawText(ctx2, tri.C.x - 18, tri.C.y - 10, "C", 18, 1000, .85);
 
-    const s = getGame2Sides();
-    const correct = correctLongestFromAngles(s.a,s.b,s.c);
-    const btn = choices2.querySelector(`button[data-pick2="${pick}"]`);
-    if(!btn) return;
+  // notes
+  drawNote(ctx2, notes.A.x, notes.A.y, g2LastPlayed==="A");
+  drawNote(ctx2, notes.B.x, notes.B.y, g2LastPlayed==="B");
+  drawNote(ctx2, notes.C.x, notes.C.y, g2LastPlayed==="C");
 
-    if(pick === correct){
-      btn.classList.add("correct");
-      game2LongestSolved = true;
-      pickedLongest2 = pick;
+  // blocks near each side (max 8 per row)
+  const mA = {x:(tri.B.x+tri.C.x)/2, y:(tri.B.y+tri.C.y)/2 + 26};
+  const mB = {x:(tri.A.x+tri.C.x)/2 - 40, y:(tri.A.y+tri.C.y)/2 + 18};
+  const mC = {x:(tri.A.x+tri.B.x)/2, y:(tri.A.y+tri.B.y)/2 + 40};
 
-      // unlock close question
-      choicesClose.querySelectorAll("button").forEach(b=> b.disabled = false);
-      step2lock.textContent = `✅ Juist: ${pick} is de langste zijde (tegenover de laagste toon). Nu: kan de driehoek sluiten?`;
-      hint2b.className = "hint";
-      hint2b.textContent = "Kies nu: kan de driehoek sluiten? Kijk naar de blokjes.";
-      ensureAudio(); playGoodChord();
-    }else{
-      btn.classList.add("wrong");
-      game2LongestSolved = false;
-      pickedLongest2 = null;
-      choicesClose.querySelectorAll("button").forEach(b=> b.disabled = true);
-      step2lock.textContent = "Niet juist. Luister opnieuw naar de hoeken en kies de langste zijde.";
-      hint2b.className = "hint bad";
-      hint2b.textContent = "❌ Eerst de langste zijde juist kiezen (via laagste toon).";
-      ensureAudio(); playBadSound();
-    }
-  }
+  drawBlocks(ctx2, mA, a, "rgba(255,107,107,0.92)", W);
+  drawBlocks(ctx2, mB, b, "rgba(77,171,247,0.92)", W);
+  drawBlocks(ctx2, mC, c, "rgba(105,219,124,0.92)", W);
 
-  function handleGame2ClosePick(ans){
-    if(!game2LongestSolved) return;
+  ctx2.save();
+  ctx2.font = "800 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+  ctx2.fillStyle = "rgba(18,34,51,0.72)";
+  ctx2.fillText("Stap 2: langste zijde moet MINDER zijn dan de andere twee samen.", 18, H-18);
+  ctx2.restore();
+
+  g2DrawData = {tri, notes, angles: computeAngles(a,b,c)};
+}
+
+function playAngleToneGame2(vertex){
+  ensureAudio();
+  const {a,b,c} = currentG2();
+  const ang = computeAngles(a,b,c);
+  const val = (vertex==="A") ? ang.A : (vertex==="B" ? ang.B : ang.C);
+  playTone(angleToFreq(val), audioCtx.currentTime + 0.02, 0.22);
+  g2LastPlayed = vertex;
+  drawGame2();
+}
+
+cv2.addEventListener("click", (e)=>{
+  if(!g2DrawData) return;
+  const rect = cv2.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (cv2.width / rect.width);
+  const y = (e.clientY - rect.top) * (cv2.height / rect.height);
+  const n = g2DrawData.notes;
+  const hit = (key)=> dist2(x,y,n[key].x,n[key].y) <= (n[key].r*n[key].r);
+  if(hit("A")) return playAngleToneGame2("A");
+  if(hit("B")) return playAngleToneGame2("B");
+  if(hit("C")) return playAngleToneGame2("C");
+});
+
+function resetG2Answers(){
+  g2RevealClosure = false; // <-- nieuw: nog niet onthullen
+  g2LongestSolved = false;
+  g2CloseSolved = false;
+  clearMCQ(choices2, "data-pick2");
+  clearMCQ(choicesClose, "data-close");
+  choicesClose.querySelectorAll("button").forEach(b=> b.disabled = true);
+  next2.disabled = true;
+  hint2b.className = "hint";
+  hint2b.textContent = "Nog geen antwoord gegeven.";
+}
+
+function handleG2PickLongest(pick){
+  clearMCQ(choices2, "data-pick2");
+  const {a,b,c} = currentG2();
+  const correct = longestSide(a,b,c);
+
+  const btn = choices2.querySelector(`button[data-pick2="${pick}"]`);
+  if(!btn) return;
+
+  if(pick === correct){
+    btn.classList.add("correct");
+    g2LongestSolved = true;
+
+    // unlock close question
+    choicesClose.querySelectorAll("button").forEach(b=> b.disabled = false);
+    hint2b.className = "hint";
+    hint2b.textContent = "Goed! Nu: kan de driehoek sluiten? Gebruik de blokjes.";
+    ensureAudio(); playGoodChord();
+  }else{
+    btn.classList.add("wrong");
+    g2LongestSolved = false;
+    choicesClose.querySelectorAll("button").forEach(b=> b.disabled = true);
     clearMCQ(choicesClose, "data-close");
+    next2.disabled = true;
+    hint2b.className = "hint bad";
+    hint2b.textContent = "❌ Niet juist. Zoek de laagste toon (grootste hoek) en neem de overstaande zijde.";
+    ensureAudio(); playBadSound();
+  }
+}
 
-    const s = getGame2Sides();
-    const correctClose = closesTriangle(s.a,s.b,s.c);
-    const btn = choicesClose.querySelector(`button[data-close="${ans}"]`);
-    if(!btn) return;
+function handleG2PickClose(ans){
+  if(!g2LongestSolved) return;
 
-    const isYes = ans === "yes";
-    const ok = (isYes === correctClose);
+  // ✅ vanaf nu mogen we visueel "reveal"en (open/gesloten)
+  g2RevealClosure = true;
 
-    if(ok){
-      btn.classList.add("correct");
-      hint2b.className = "hint good";
-      if(correctClose){
-        hint2b.innerHTML = `✅ Juist! De driehoek <b>kan sluiten</b> omdat de langste zijde <b>minder</b> is dan de andere twee samen.`;
-      }else{
-        hint2b.innerHTML = `✅ Juist! De driehoek <b>kan niet sluiten</b>: de langste zijde is <b>niet kleiner</b> dan de andere twee samen.`;
-      }
-      ensureAudio(); playGoodChord();
-    }else{
-      btn.classList.add("wrong");
-      hint2b.className = "hint bad";
-      hint2b.innerHTML = `❌ Niet juist. Tip: tel de blokjes van de twee andere zijden samen.
-        De langste zijde moet <b>minder</b> blokjes hebben om te kunnen sluiten.`;
-      ensureAudio(); playBadSound();
-    }
+  clearMCQ(choicesClose, "data-close");
+
+  const {a,b,c} = currentG2();
+  const correct = closesTriangle(a,b,c);
+  const isYes = (ans === "yes");
+  const ok = (isYes === correct);
+
+  const btn = choicesClose.querySelector(`button[data-close="${ans}"]`);
+  if(!btn) return;
+
+  if(ok){
+    btn.classList.add("correct");
+    g2CloseSolved = true;
+    next2.disabled = false;
+
+    hint2b.className = "hint good";
+    hint2b.innerHTML = correct
+      ? "✅ Juist! De driehoek <b>kan sluiten</b> (langste zijde is kleiner dan de andere twee samen)."
+      : "✅ Juist! De driehoek <b>kan niet sluiten</b> (langste zijde is niet kleiner dan de andere twee samen).";
+    ensureAudio(); playGoodChord();
+  }else{
+    btn.classList.add("wrong");
+    g2CloseSolved = false;
+    next2.disabled = true;
+
+    hint2b.className = "hint bad";
+    hint2b.innerHTML = "❌ Niet juist. Tel de blokjes van de twee andere zijden samen en vergelijk met de langste.";
+    ensureAudio(); playBadSound();
   }
 
-  function playAngleToneGame2(vertex){
-    ensureAudio();
-    const s = getGame2Sides();
-    const {A,B,C} = computeAngles(s.a, s.b, s.c);
-    const ang = (vertex==="A")?A:(vertex==="B")?B:C;
-    const f = angleToFreq(ang);
-    playTone(f, audioCtx.currentTime + 0.02, 0.22);
-    lastPlayed2 = vertex;
-    drawData2 = drawGame2(ctx2, s.a, s.b, s.c, lastPlayed2, true);
+  // herteken zodat de reveal meteen zichtbaar is
+  drawGame2();
+}
+
+choices2.addEventListener("click", (e)=>{
+  const btn = e.target.closest("button[data-pick2]");
+  if(!btn) return;
+  handleG2PickLongest(btn.dataset.pick2);
+});
+
+choicesClose.addEventListener("click", (e)=>{
+  const btn = e.target.closest("button[data-close]");
+  if(!btn) return;
+  handleG2PickClose(btn.dataset.close);
+});
+
+function nextG2(){
+  if(!g2CloseSolved) return;
+  if(g2Index < GAME2_LEVELS.length - 1){
+    g2Index++;
+    g2LastPlayed = null;
+    resetG2Answers();
+    drawGame2();
+    hint2.className = "hint";
+    hint2.innerHTML = `Nieuw level! Klik op de nootjes, kies de langste zijde, en beslis of de driehoek kan sluiten.`;
+  }else{
+    hint2b.className = "hint good";
+    hint2b.innerHTML = "🎉 Spel 2 is klaar! Goed gewerkt!";
+    next2.disabled = true;
   }
+}
+next2.addEventListener("click", nextG2);
 
-  // ---------- Canvas click handling ----------
-  function handleCanvasClick(e, which){
-    const canvas = (which===1) ? cv1 : cv2;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-    const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+back1.addEventListener("click", ()=>gotoPage(1));
 
-    const data = (which===1) ? drawData1 : drawData2;
-    if(!data) return;
+// ---------- Init ----------
+function resetGame1UI(){
+  clearMCQ(choices1, "data-pick");
+  next1.disabled = true;
+  goGame2.disabled = true;
+  goGame2Top.disabled = true;
+  g1Solved = false;
+  g1LastPlayed = null;
+  hint1.className = "hint";
+  hint1.innerHTML = `Klik op de nootjes bij de hoeken. Grootste hoek → laagste toon. Kies de langste zijde.`;
+}
 
-    const notes = data.notes;
-    const hit = (key)=>{
-      const n = notes[key];
-      return dist2(x,y,n.x,n.y) <= (n.r*n.r);
-    };
+next1.disabled = true;
+resetGame1UI();
+drawGame1();
 
-    if(hit("A")) return (which===1) ? playAngleToneGame1("A") : playAngleToneGame2("A");
-    if(hit("B")) return (which===1) ? playAngleToneGame1("B") : playAngleToneGame2("B");
-    if(hit("C")) return (which===1) ? playAngleToneGame1("C") : playAngleToneGame2("C");
-  }
-
-  // ---------- Wire up UI ----------
-  // initial draw
-  drawData1 = drawGame1(ctx1, game1Sides.a, game1Sides.b, game1Sides.c, lastPlayed1);
-
-  cv1.addEventListener("click", (e)=>handleCanvasClick(e,1));
-  cv2.addEventListener("click", (e)=>handleCanvasClick(e,2));
-
-  choices1.addEventListener("click", (e)=>{
-    const btn = e.target.closest("button[data-pick]");
-    if(!btn) return;
-    handleGame1Pick(btn.dataset.pick);
-  });
-
-  toGame2.addEventListener("click", ()=> gotoPage(2));
-  toGame2Top.addEventListener("click", ()=> gotoPage(2));
-  backToGame1.addEventListener("click", ()=> gotoPage(1));
-
-  // game2 sliders
-  function onGame2Change(){ updateGame2Readouts(); }
-  ra.addEventListener("input", onGame2Change);
-  rb.addEventListener("input", onGame2Change);
-  rc.addEventListener("input", onGame2Change);
-
-  preset.addEventListener("change", ()=>{
-    if(!preset.value) return;
-    const [a,b,c] = preset.value.split(",").map(Number);
-    ra.value=String(a); rb.value=String(b); rc.value=String(c);
-    updateGame2Readouts();
-  });
-
-  randomBtn.addEventListener("click", setRandomGame2);
-  resetBtn.addEventListener("click", resetGame2);
-
-  choices2.addEventListener("click", (e)=>{
-    const btn = e.target.closest("button[data-pick2]");
-    if(!btn) return;
-    handleGame2PickLongest(btn.dataset.pick2);
-  });
-
-  choicesClose.addEventListener("click", (e)=>{
-    const btn = e.target.closest("button[data-close]");
-    if(!btn) return;
-    handleGame2ClosePick(btn.dataset.close);
-  });
-
-  // init game2 readouts and drawing when page2 is opened
-  updateGame2Readouts();
-  drawData2 = drawGame2(ctx2, Number(ra.value), Number(rb.value), Number(rc.value), lastPlayed2, true);
-
+resetG2Answers();
+drawGame2();
 </script>
 </body>
 </html>
