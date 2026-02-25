@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kan jij de muzikale driehoek bouwen?</title>
+  <title>Muzikale Driehoek – luister & sluit</title>
   <style>
     :root{
       --bg:#f6fbff;
@@ -13,8 +13,15 @@
       --accent:#2a7fff;
       --good:#1f9d55;
       --bad:#e53935;
+      --warn:#ffb300;
       --shadow: 0 10px 30px rgba(10,30,60,.10);
       --radius: 18px;
+
+      --a:#ff6b6b;      /* kleurzijde a */
+      --b:#4dabf7;      /* kleurzijde b */
+      --c:#69db7c;      /* kleurzijde c */
+      --sum:#2fb344;    /* somkleur */
+      --long:#f59f00;   /* langste zijde */
     }
 
     *{ box-sizing:border-box; }
@@ -83,6 +90,7 @@
       color:#2a5ea8;
       border:1px solid #d7eaff;
       white-space:nowrap;
+      font-weight: 800;
     }
 
     .row{
@@ -111,6 +119,7 @@
       font-variant-numeric: tabular-nums;
       color: var(--muted);
       font-size: 13px;
+      font-weight: 800;
     }
 
     input[type="range"]{
@@ -128,23 +137,38 @@
       border:0;
       border-radius: 14px;
       padding: 12px 12px;
-      font-weight: 800;
+      font-weight: 950;
       cursor:pointer;
-      transition: transform .06s ease, filter .15s ease;
+      transition: transform .06s ease, filter .15s ease, opacity .15s ease;
       user-select:none;
     }
     button:active{ transform: scale(.99); }
+
     .btn{
       background: var(--accent);
       color:white;
       box-shadow: 0 10px 18px rgba(42,127,255,.25);
     }
     .btn:hover{ filter: brightness(1.03); }
+
     .btn-ghost{
       background:#eef6ff;
       color:#244b7a;
       border:1px solid #d7eaff;
       box-shadow:none;
+    }
+
+    .btn-warn{
+      background:#fff8e1;
+      border:1px solid #ffe08a;
+      color:#5a3a00;
+      box-shadow:none;
+    }
+
+    button[disabled]{
+      opacity: .45;
+      cursor: not-allowed;
+      transform:none;
     }
 
     select{
@@ -153,7 +177,7 @@
       border-radius: 14px;
       border:1px solid #e6eef7;
       background:#ffffff;
-      font-weight:700;
+      font-weight:900;
       color: var(--ink);
     }
 
@@ -184,6 +208,7 @@
     .msg span{
       color:var(--muted);
       font-size: 13px;
+      font-weight: 700;
     }
 
     .good{
@@ -218,39 +243,221 @@
       justify-content:space-between;
       padding: 12px 14px;
     }
-    .stagebar .left{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    }
     .pill{
       padding: 8px 10px;
       border-radius: 999px;
       background:#f3f8ff;
       border:1px solid #e1efff;
-      font-weight:800;
+      font-weight:950;
       font-size: 13px;
       color:#21486f;
     }
-    .pill b{ font-variant-numeric: tabular-nums; }
 
     canvas{
       width:100%;
-      height: 440px;
+      height: 460px;
       display:block;
     }
 
-    .rule{
-      margin-top: 10px;
+    /* ---------- Onderdeel kaarten / stappen ---------- */
+    .part{
+      border: 1px solid #e6eef7;
+      border-radius: 16px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+    .part h3{
+      margin:0 0 6px;
+      font-size: 15px;
+      letter-spacing: -0.2px;
+    }
+    .part p{
+      margin:0;
       color: var(--muted);
       font-size: 13px;
       line-height: 1.35;
+      font-weight: 700;
     }
-    .rule code{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      background:#f0f6ff;
-      padding: 2px 6px;
-      border-radius: 8px;
-      border: 1px solid #d7eaff;
-      color:#234a78;
+    .stepgrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top: 10px;
+    }
+
+    /* ---------- Keuzeknoppen a/b/c ---------- */
+    .choiceRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 8px;
+    }
+    .choice{
+      flex: 1 1 80px;
+      background:#fff;
+      border:1px solid #e6eef7;
+      color:#123;
+      font-weight: 1000;
+      padding: 12px;
+      border-radius: 14px;
+    }
+    .choice small{
+      display:block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+    }
+    .choice.a{ border-color: rgba(255,107,107,.45); }
+    .choice.b{ border-color: rgba(77,171,247,.55); }
+    .choice.c{ border-color: rgba(105,219,124,.55); }
+
+    .choice.correct{
+      background: rgba(31,157,85,.10);
+      border-color: rgba(31,157,85,.35);
+      color:#0b4f2a;
+    }
+    .choice.wrong{
+      background: rgba(229,57,53,.08);
+      border-color: rgba(229,57,53,.35);
+      color:#7a0b0b;
+    }
+
+    /* ---------- Blokjes (rijtjes van 10) ---------- */
+    .blocksWrap{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      margin-top: 10px;
+    }
+    .blockLine{
+      border:1px solid #e6eef7;
+      border-radius: 14px;
+      background:#fff;
+      padding:10px;
+    }
+    .blockHead{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 8px;
+    }
+    .blockHead strong{
+      font-size: 14px;
+      font-weight: 1000;
+    }
+    .blockHead span{
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tenRow{
+      display:flex;
+      gap:6px;
+      flex-wrap:nowrap;
+      margin-bottom: 6px;
+    }
+
+    .blk{
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      border: 1px solid rgba(18,34,51,.18);
+      background: rgba(18,34,51,.08); /* licht (niet van toepassing) */
+    }
+
+    /* Donkere blokjes (van toepassing) per type */
+    .blk.on.a{ background: rgba(255,107,107,.90); border-color: rgba(255,107,107,1); }
+    .blk.on.b{ background: rgba(77,171,247,.90); border-color: rgba(77,171,247,1); }
+    .blk.on.c{ background: rgba(105,219,124,.90); border-color: rgba(105,219,124,1); }
+
+    .blk.on.long{ background: rgba(245,159,0,.95); border-color: rgba(245,159,0,1); }
+    .blk.on.sum { background: rgba(47,179,68,.92); border-color: rgba(47,179,68,1); }
+
+    .compareNote{
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+      font-weight: 800;
+    }
+    .compareNote b{
+      color:#123;
+    }
+
+    /* ---------- Intro overlay ---------- */
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(10,20,40,.55);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index: 9999;
+    }
+    .modal{
+      width:min(980px, 100%);
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 25px 60px rgba(0,0,0,.25);
+      overflow:hidden;
+      border: 1px solid #e6eef7;
+    }
+    .modal-head{
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: linear-gradient(90deg, #eef6ff, #f6fffb);
+      border-bottom:1px solid #e6eef7;
+    }
+    .modal-head h2{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:-0.2px;
+    }
+    .modal-body{
+      padding: 16px;
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 14px;
+    }
+    @media (max-width: 900px){
+      .modal-body{ grid-template-columns: 1fr; }
+    }
+    .modal-box{
+      border:1px solid #e6eef7;
+      border-radius: 14px;
+      background:#fbfdff;
+      padding: 12px;
+    }
+    .big{
+      font-size: 14px;
+      line-height:1.35;
+      margin:0;
+      color:var(--muted);
+      font-weight: 750;
+    }
+    .callout{
+      margin-top:10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px solid #ffe08a;
+      background:#fff8e1;
+      color:#5a3a00;
+      font-weight:1000;
+    }
+    .modal-foot{
+      padding: 14px 16px;
+      border-top:1px solid #e6eef7;
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
     }
 
     footer{
@@ -259,104 +466,83 @@
       padding: 0 18px 24px;
       color: var(--muted);
       font-size: 12px;
-    }
-
-    /* ---------------- Speelse fout-quiz ---------------- */
-    .quiz{
-      margin-top: 12px;
-      border-radius: 16px;
-      padding: 12px;
-      border: 1px solid #ffe6a7;
-      background: #fffaf0;
-    }
-    .hidden{ display:none; }
-
-    .quiz-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:10px;
-    }
-    .quiz-title{
-      font-weight: 900;
-    }
-    .stars{
-      font-size: 13px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #fff2cc;
-      border: 1px solid #ffe6a7;
-    }
-    .quiz-block{
-      border-top: 1px dashed #ffd88a;
-      padding-top: 10px;
-      margin-top: 10px;
-    }
-    .q{
-      font-weight: 900;
-      margin-bottom: 8px;
-    }
-    .options{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-    .optbtn{
-      background:#ffffff;
-      border:1px solid #ffd88a;
-      color:#5a3a00;
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-weight: 900;
-    }
-    .optbtn:hover{ filter: brightness(1.02); }
-    .optbtn.correct{
-      border-color: rgba(31,157,85,.35);
-      background: rgba(31,157,85,.12);
-      color: #0b4f2a;
-    }
-    .optbtn.wrong{
-      border-color: rgba(229,57,53,.35);
-      background: rgba(229,57,53,.10);
-      color: #7a0b0b;
-    }
-    .hint{
-      margin-top: 8px;
-      color: #6a5a3a;
-      font-size: 13px;
-      line-height: 1.25;
+      font-weight: 700;
     }
   </style>
 </head>
 
 <body>
+  <!-- INTRO -->
+  <div id="overlay" class="overlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h2>🎧 Uitleg (Onderdeel 1): grootste hoek → laagste toon</h2>
+        <span class="badge">Start hier</span>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-box">
+          <p class="big">
+            In een driehoek geldt:
+          </p>
+          <div class="callout">✅ Tegenover de grootste hoek ligt de langste zijde.</div>
+          <p class="big" style="margin-top:10px">
+            In dit spel koppelen we lengte aan klank:
+          </p>
+          <div class="callout">🎵 Langste zijde = laagste toon</div>
+          <p class="big" style="margin-top:10px">
+            Dus: hoor je de <b>laagste toon</b>, dan weet je welke zijde het <b>langst</b> is.
+            Die zijde ligt tegenover de <b>grootste hoek</b>.
+          </p>
+          <p class="big" style="margin-top:10px">
+            Daarna gebruiken we de driehoeksongelijkheid:
+            <b>de driehoek kan alleen sluiten als</b> de langste zijde <b>kleiner</b> is dan de twee andere samen.
+          </p>
+        </div>
+
+        <div class="modal-box">
+          <div class="callout" style="border-color:#d7eaff;background:#eef6ff;color:#234a78">
+            Tip voor leerlingen:
+            <br/>1) Luister: zoek de laagste toon.
+            <br/>2) Kijk: blokjes tonen de lengtes.
+          </div>
+          <p class="big" style="margin-top:10px">
+            Klik straks op <b>Start het spel</b>.
+            Je moet eerst de luisterchallenge juist hebben voor je naar de sluit-check mag.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button id="startGame" class="btn" type="button">Start het spel 🚀</button>
+      </div>
+    </div>
+  </div>
+
   <header>
-    <h1>🎵 Kan jij de muzikale driehoek bouwen?</h1>
+    <h1>🎵 Muzikale Driehoek – luister & sluit</h1>
     <p class="subtitle">
-      Verander de lengtes van de 3 zijden. Klik op <b>Speel driehoek</b>:
-      je hoort 3 tonen (één per zijde) en je ziet of het een echte driehoek kan zijn.
+      <b>Onderdeel 1</b>: Vind de langste zijde (laagste toon).<br/>
+      <b>Onderdeel 2</b>: Driehoeksongelijkheid – kan de driehoek sluiten?
     </p>
   </header>
 
   <main class="wrap">
-    <!-- LINKS: bediening -->
+    <!-- LINKS: bediening & spelstappen -->
     <section class="card">
       <div class="panel-title">
-        <h2>1) Kies je zijden</h2>
-        <span class="badge">10–12 jaar • digibord-proof</span>
+        <h2>Spel</h2>
+        <span class="badge">zonder libraries</span>
       </div>
 
+      <!-- Lengtes instellen -->
       <div class="row">
         <div class="control">
           <div class="labelline">
             <strong>Zijde a</strong>
             <span class="value"><span id="va">7</span> cm</span>
           </div>
-          <input id="ra" type="range" min="2" max="20" value="7" />
-          <div class="mini">
-            <button class="btn-ghost" data-tap="a">🎵 Luister</button>
-          </div>
+          <input id="ra" type="range" min="2" max="30" value="7" />
         </div>
 
         <div class="control">
@@ -364,10 +550,7 @@
             <strong>Zijde b</strong>
             <span class="value"><span id="vb">9</span> cm</span>
           </div>
-          <input id="rb" type="range" min="2" max="20" value="9" />
-          <div class="mini">
-            <button class="btn-ghost" data-tap="b">🎵 Luister</button>
-          </div>
+          <input id="rb" type="range" min="2" max="30" value="9" />
         </div>
 
         <div class="control">
@@ -375,68 +558,121 @@
             <strong>Zijde c</strong>
             <span class="value"><span id="vc">12</span> cm</span>
           </div>
-          <input id="rc" type="range" min="2" max="20" value="12" />
-          <div class="mini">
-            <button class="btn-ghost" data-tap="c">🎵 Luister</button>
-          </div>
+          <input id="rc" type="range" min="2" max="30" value="12" />
         </div>
 
         <div class="control">
           <div class="labelline">
-            <strong>Of kies een voorbeeld</strong>
-            <span class="value">snel starten</span>
+            <strong>Voorbeelden</strong>
+            <span class="value">snel oefenen</span>
           </div>
           <select id="preset">
-            <option value="">— kies een combinatie —</option>
-            <option value="3,4,5">✅ (3, 4, 5) klassieke driehoek</option>
-            <option value="6,6,6">✅ (6, 6, 6) gelijkzijdig</option>
-            <option value="5,7,10">✅ (5, 7, 10) net genoeg</option>
-            <option value="2,3,5">❌ (2, 3, 5) ligt op één lijn</option>
-            <option value="4,6,12">❌ (4, 6, 12) te lang</option>
-            <option value="8,9,20">❌ (8, 9, 20) bijna onmogelijk</option>
+            <option value="">— kies —</option>
+            <option value="3,4,5">✅ (3,4,5) klassiek</option>
+            <option value="6,6,6">✅ (6,6,6) gelijkzijdig</option>
+            <option value="2,3,5">❌ (2,3,5) sluit niet (plat)</option>
+            <option value="4,6,12">❌ (4,6,12) sluit niet</option>
           </select>
+          <div class="mini">
+            <button id="random" class="btn-ghost" type="button">🎲 Willekeurig</button>
+            <button id="reset" class="btn-ghost" type="button">↩️ Reset</button>
+          </div>
         </div>
 
-        <div class="mini">
-          <button id="play" class="btn">▶️ Speel driehoek</button>
-          <button id="random" class="btn-ghost">🎲 Willekeurig</button>
-          <button id="reset" class="btn-ghost">↩️ Reset</button>
-        </div>
-
+        <!-- Feedback -->
         <div id="feedback" class="feedback">
           <div class="dot"></div>
           <div class="msg">
-            <strong>Tip</strong>
-            <span>Een driehoek kan alleen als elke zijde kleiner is dan de som van de twee andere.</span>
+            <strong>Start bij Onderdeel 1</strong>
+            <span>Klik “Speel tonen” en kies de langste zijde (laagste toon).</span>
           </div>
         </div>
 
-        <!-- Speelse fout-quiz (verschijnt alleen bij fout) -->
-        <div id="quiz" class="quiz hidden" aria-live="polite">
-          <div class="quiz-head">
-            <div class="quiz-title">🕵️ Fout gevonden! Los het raadsel op…</div>
-            <div class="stars">⭐ <b id="stars">0</b></div>
+        <!-- ONDERDEEL 1 -->
+        <div class="part" id="part1">
+          <h3>1) Welke zijde is het langst?</h3>
+          <p>
+            Uitleg: de grootste hoek hoort bij de langste zijde. In dit spel krijgt de langste zijde de <b>laagste toon</b>.
+          </p>
+
+          <div class="mini">
+            <button id="playTones1" class="btn" type="button">▶️ Speel tonen (a, b, c)</button>
           </div>
 
-          <div class="quiz-block">
-            <div class="q">1) Welke zijde is te lang?</div>
-            <div class="options" id="opt-too-long"></div>
-            <div class="hint" id="hint-too-long"></div>
+          <div class="choiceRow" id="choices1">
+            <button class="choice a" data-pick="a" type="button">Kies a <small>(laagste toon?)</small></button>
+            <button class="choice b" data-pick="b" type="button">Kies b <small>(laagste toon?)</small></button>
+            <button class="choice c" data-pick="c" type="button">Kies c <small>(laagste toon?)</small></button>
           </div>
 
-          <div class="quiz-block">
-            <div class="q">2) Welke ongelijkheid klopt niet?</div>
-            <div class="options" id="opt-ineq"></div>
-            <div class="hint" id="hint-ineq"></div>
+          <div class="mini">
+            <button id="toPart2" class="btn-warn" type="button" disabled>➡️ Ga naar Onderdeel 2</button>
           </div>
         </div>
 
-        <div class="rule">
-          Regel (driehoeksongelijkheid):<br/>
-          <code>a &lt; b + c</code> &nbsp;•&nbsp;
-          <code>b &lt; a + c</code> &nbsp;•&nbsp;
-          <code>c &lt; a + b</code>
+        <!-- ONDERDEEL 2 -->
+        <div class="part" id="part2" style="opacity:.55">
+          <h3>2) Driehoeksongelijkheid</h3>
+          <p>
+            Stap 1: kies opnieuw de langste zijde. Stap 2: kijk met blokjes of de driehoek kan sluiten.
+          </p>
+
+          <div class="stepgrid">
+            <div class="control">
+              <div class="labelline">
+                <strong>Stap 1: kies de langste zijde</strong>
+                <span class="value">laagste toon</span>
+              </div>
+
+              <div class="mini">
+                <button id="playTones2" class="btn" type="button" disabled>▶️ Speel tonen (a, b, c)</button>
+              </div>
+
+              <div class="choiceRow" id="choices2">
+                <button class="choice a" data-pick2="a" type="button" disabled>Kies a</button>
+                <button class="choice b" data-pick2="b" type="button" disabled>Kies b</button>
+                <button class="choice c" data-pick2="c" type="button" disabled>Kies c</button>
+              </div>
+
+              <div class="mini">
+                <button id="unlockCloseCheck" class="btn-warn" type="button" disabled>✅ Oké → stap 2</button>
+              </div>
+            </div>
+
+            <div class="control">
+              <div class="labelline">
+                <strong>Stap 2: kan de driehoek sluiten?</strong>
+                <span class="value">blokjes in rijtjes van 10</span>
+              </div>
+
+              <div class="blocksWrap">
+                <div class="blockLine">
+                  <div class="blockHead">
+                    <strong>Lengtes (a, b, c)</strong>
+                    <span>donker = telt mee</span>
+                  </div>
+                  <div id="blocksABC"></div>
+                </div>
+
+                <div class="blockLine">
+                  <div class="blockHead">
+                    <strong>Vergelijking</strong>
+                    <span>twee korte samen vs langste</span>
+                  </div>
+                  <div id="blocksCompare"></div>
+                  <div class="compareNote" id="compareText">
+                    Kies eerst stap 1.
+                  </div>
+                </div>
+              </div>
+
+              <div class="mini">
+                <button id="checkClose" class="btn" type="button" disabled>🔍 Controleer sluiten</button>
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
     </section>
 
@@ -444,42 +680,42 @@
     <section class="stage">
       <div class="canvas-wrap">
         <div class="stagebar">
-          <div class="left">
-            <div class="pill">Score: <b id="score">0</b> / 5</div>
-            <div class="pill">Level: <b id="level">1</b></div>
-          </div>
-          <div class="pill">🎵 Lang = lage toon</div>
+          <div class="pill">🎵 langste = laagste toon</div>
+          <div class="pill">🧱 blokjes per 10</div>
         </div>
-        <canvas id="cv" width="900" height="440" aria-label="Driehoek canvas"></canvas>
+        <canvas id="cv" width="900" height="460" aria-label="Driehoek canvas"></canvas>
       </div>
 
       <div class="card">
         <div class="panel-title">
-          <h2>2) Wat gebeurt er?</h2>
-          <span class="badge">muziek ↔ lengte ↔ vorm</span>
+          <h2>Wat zie je?</h2>
+          <span class="badge">duidelijk</span>
         </div>
-        <p style="margin:0;color:var(--muted);line-height:1.35;font-size:14px">
-          Je hoort drie tonen na elkaar (a, b, c). Daarna:
-          <b>groen</b> = echte driehoek + akkoord,
-          <b>rood</b> = geen driehoek + vals geluid + mini-quiz.
+        <p style="margin:0;color:var(--muted);line-height:1.35;font-size:14px;font-weight:750">
+          Bij “sluit wel” zie je een echte driehoek. Bij “sluit niet” tonen we dat de driehoek niet kan sluiten.
         </p>
       </div>
     </section>
   </main>
 
   <footer>
-    Tip voor GitHub: plaats dit bestand als <b>index.html</b> in een repo en zet GitHub Pages aan.
-    (Geen libraries nodig.)
+    GitHub tip: dit is 1 bestand (<b>index.html</b>). Zet GitHub Pages aan om het online te spelen.
   </footer>
 
   <script>
     /******************************************************************
-     * MUZIKALE DRIEHOEK - enkel HTML/CSS/JS, geen externe libraries
-     * Speelser: bij fout komt er een mini-quiz + sterren.
-     * Consistente koppeling: langere zijde -> lagere toon.
+     * 3 ONDERDELEN
+     * 1) Intro uitleg: grootste hoek ↔ langste zijde ↔ laagste toon
+     * 2) Onderdeel 1: Luisterchallenge (verplicht)
+     * 3) Onderdeel 2: Driehoeksongelijkheid
+     *    Stap 1: kies langste zijde (verplicht)
+     *    Stap 2: blokjes-check "kan de driehoek sluiten?"
      ******************************************************************/
 
-    // --- DOM helpers
+    // DOM
+    const overlay = document.getElementById("overlay");
+    const startGame = document.getElementById("startGame");
+
     const ra = document.getElementById("ra");
     const rb = document.getElementById("rb");
     const rc = document.getElementById("rc");
@@ -487,64 +723,53 @@
     const vb = document.getElementById("vb");
     const vc = document.getElementById("vc");
 
-    const btnPlay = document.getElementById("play");
-    const btnRandom = document.getElementById("random");
-    const btnReset = document.getElementById("reset");
     const preset = document.getElementById("preset");
+    const randomBtn = document.getElementById("random");
+    const resetBtn = document.getElementById("reset");
 
     const feedback = document.getElementById("feedback");
-    const scoreEl = document.getElementById("score");
-    const levelEl = document.getElementById("level");
+
+    const playTones1 = document.getElementById("playTones1");
+    const choices1 = document.getElementById("choices1");
+    const toPart2 = document.getElementById("toPart2");
+
+    const part2 = document.getElementById("part2");
+    const playTones2 = document.getElementById("playTones2");
+    const choices2 = document.getElementById("choices2");
+    const unlockCloseCheck = document.getElementById("unlockCloseCheck");
+    const checkClose = document.getElementById("checkClose");
+
+    const blocksABC = document.getElementById("blocksABC");
+    const blocksCompare = document.getElementById("blocksCompare");
+    const compareText = document.getElementById("compareText");
 
     const canvas = document.getElementById("cv");
     const ctx = canvas.getContext("2d");
 
-    // Quiz DOM
-    const quiz = document.getElementById("quiz");
-    const starsEl = document.getElementById("stars");
-    const optTooLong = document.getElementById("opt-too-long");
-    const optIneq = document.getElementById("opt-ineq");
-    const hintTooLong = document.getElementById("hint-too-long");
-    const hintIneq = document.getElementById("hint-ineq");
+    // State gates
+    let part1Solved = false;
+    let part2Step1Solved = false;
+    let chosenLongestInPart2 = null;
 
-    // --- Game state
-    let score = 0;
-    let level = 1;
-    let stars = 0;
-
-    // Sliders worden per level wat "groter" (iets uitdagender, maar simpel).
-    function applyLevelLimits(){
-      const max = 20 + (level-1)*10;           // level 1: 20, level 2: 30, ...
-      const min = 2 + Math.floor((level-1)*1); // heel licht stijgend
-      [ra,rb,rc].forEach(r => {
-        r.min = String(min);
-        r.max = String(max);
-      });
-    }
-
-    // --- Web Audio: eenvoudige xylophone-achtige klank
+    // Audio
     let audioCtx = null;
-
     function ensureAudio(){
       if(!audioCtx){
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      if(audioCtx.state === "suspended"){
-        audioCtx.resume();
-      }
+      if(audioCtx.state === "suspended") audioCtx.resume();
     }
 
-    // Map lengte -> frequentie (langere zijde = lagere toon).
+    // Langere zijde -> lagere toon
     function lengthToFreq(len){
       const minLen = Number(ra.min);
       const maxLen = Number(ra.max);
       const t = (len - minLen) / (maxLen - minLen); // 0..1
-      const high = 880; // kort -> hoog
-      const low  = 220; // lang -> laag
+      const high = 880;
+      const low  = 220;
       return high + (low - high) * t;
     }
 
-    // Speel één toon met korte "mallet" attack + snelle decay
     function playTone(freq, startTime, duration=0.18){
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -582,21 +807,21 @@
       playTone(452, t0 + 0.05, 0.18);
     }
 
-    // --- Wiskunde: driehoeksongelijkheid
-    function isValidTriangle(a,b,c){
-      return (a < b + c) && (b < a + c) && (c < a + b);
-    }
-
-    // --- UI updates
+    // Helpers
     function getLengths(){
       return { a:Number(ra.value), b:Number(rb.value), c:Number(rc.value) };
     }
 
-    function updateReadouts(){
-      va.textContent = ra.value;
-      vb.textContent = rb.value;
-      vc.textContent = rc.value;
-      drawScene();
+    function longestSideLetter({a,b,c}){
+      const m = Math.max(a,b,c);
+      if(m === a) return "a";
+      if(m === b) return "b";
+      return "c";
+    }
+
+    function isTriangleClosable({a,b,c}){
+      // echte driehoek: strikt kleiner
+      return (a < b + c) && (b < a + c) && (c < a + b);
     }
 
     function setFeedback(state, title, text){
@@ -607,26 +832,161 @@
       feedback.querySelector("span").textContent = text;
     }
 
-    function bumpScore(){
-      score++;
-      if(score >= 5){
-        level++;
-        score = 0;
-        applyLevelLimits();
-        setFeedback("good","Level omhoog! 🎉",
-          "Top! Nieuw level: de getallen worden groter. Bouw opnieuw 5 juiste driehoeken.");
-      }
-      scoreEl.textContent = String(score);
-      levelEl.textContent = String(level);
+    function updateReadouts(){
+      va.textContent = ra.value;
+      vb.textContent = rb.value;
+      vc.textContent = rc.value;
+      renderAllBlocks();   // blokjes altijd up-to-date
+      drawScene(null);     // neutraal tekenen tot check
+      resetProgressOnChange();
     }
 
-    // --- Canvas tekenen
+    function resetProgressOnChange(){
+      // Als de lengtes veranderen, moet je opnieuw luisteren/keuzes maken.
+      part1Solved = false;
+      part2Step1Solved = false;
+      chosenLongestInPart2 = null;
+
+      toPart2.disabled = true;
+
+      part2.style.opacity = ".55";
+      playTones2.disabled = true;
+      unlockCloseCheck.disabled = true;
+      checkClose.disabled = true;
+
+      // knoppen in part2 weer enabled/disabled correct zetten
+      choices2.querySelectorAll("button").forEach(b=> b.disabled = true);
+
+      // reset styles
+      clearChoiceStyles(choices1, "data-pick");
+      clearChoiceStyles(choices2, "data-pick2");
+
+      compareText.textContent = "Kies eerst stap 1.";
+      blocksCompare.innerHTML = "";
+
+      setFeedback("", "Start opnieuw",
+        "De lengtes zijn veranderd. Doe weer Onderdeel 1: luister en kies de langste zijde (laagste toon).");
+    }
+
+    function clearChoiceStyles(container, attr){
+      container.querySelectorAll("button[" + attr + "]").forEach(b=>{
+        b.classList.remove("correct","wrong");
+      });
+    }
+
+    // ---- Speel tonen (a, b, c)
+    function playABC(){
+      ensureAudio();
+      const {a,b,c} = getLengths();
+      const fa = lengthToFreq(a);
+      const fb = lengthToFreq(b);
+      const fc = lengthToFreq(c);
+      const t0 = audioCtx.currentTime + 0.06;
+      playTone(fa, t0, 0.18);
+      playTone(fb, t0 + 0.24, 0.18);
+      playTone(fc, t0 + 0.48, 0.18);
+    }
+
+    // ---- BLOKJES in rijtjes van 10
+    function makeTenRows(container, value, typeClass){
+      // value: aantal "donkere" blokjes
+      // we tonen voldoende rijen van 10 om value te kunnen weergeven
+      const rows = Math.max(1, Math.ceil(value / 10));
+      for(let r=0; r<rows; r++){
+        const rowEl = document.createElement("div");
+        rowEl.className = "tenRow";
+        for(let i=0; i<10; i++){
+          const idx = r*10 + i + 1; // 1..value
+          const blk = document.createElement("div");
+          blk.className = "blk";
+          if(idx <= value){
+            blk.classList.add("on", typeClass);
+          }
+          rowEl.appendChild(blk);
+        }
+        container.appendChild(rowEl);
+      }
+    }
+
+    function renderBlocksLine(title, value, typeClass){
+      const line = document.createElement("div");
+      line.className = "blockLine";
+
+      const head = document.createElement("div");
+      head.className = "blockHead";
+      head.innerHTML = `<strong>${title}</strong><span>${value} blokjes</span>`;
+      line.appendChild(head);
+
+      const box = document.createElement("div");
+      makeTenRows(box, value, typeClass);
+      line.appendChild(box);
+
+      return line;
+    }
+
+    function renderAllBlocks(){
+      const {a,b,c} = getLengths();
+
+      blocksABC.innerHTML = "";
+      blocksABC.appendChild(renderBlocksLine("a", a, "a"));
+      blocksABC.appendChild(renderBlocksLine("b", b, "b"));
+      blocksABC.appendChild(renderBlocksLine("c", c, "c"));
+    }
+
+    function renderCompareBlocks(longestLetter){
+      const {a,b,c} = getLengths();
+      const map = {a, b, c};
+      const L = map[longestLetter];
+
+      const others = ["a","b","c"].filter(x => x !== longestLetter);
+      const sum = map[others[0]] + map[others[1]];
+
+      blocksCompare.innerHTML = "";
+
+      // Som van twee korte
+      const sumLine = document.createElement("div");
+      sumLine.className = "blockLine";
+      sumLine.innerHTML = `
+        <div class="blockHead">
+          <strong>${others[0]} + ${others[1]} (samen)</strong>
+          <span>${sum} blokjes</span>
+        </div>
+      `;
+      const sumBox = document.createElement("div");
+      makeTenRows(sumBox, sum, "sum");
+      sumLine.appendChild(sumBox);
+
+      // Langste
+      const longLine = document.createElement("div");
+      longLine.className = "blockLine";
+      longLine.innerHTML = `
+        <div class="blockHead">
+          <strong>langste zijde (${longestLetter})</strong>
+          <span>${L} blokjes</span>
+        </div>
+      `;
+      const longBox = document.createElement("div");
+      makeTenRows(longBox, L, "long");
+      longLine.appendChild(longBox);
+
+      blocksCompare.appendChild(sumLine);
+      blocksCompare.appendChild(longLine);
+
+      const canClose = (L < sum); // strict
+      compareText.innerHTML = canClose
+        ? `✅ <b>Kan sluiten</b>: ${others[0]} + ${others[1]} is groter dan ${longestLetter}.`
+        : `❌ <b>Kan niet sluiten</b>: ${longestLetter} is te lang (niet kleiner dan de andere twee samen).`;
+
+      return canClose;
+    }
+
+    // ---- TEKENEN (simpel en duidelijk)
     function clearCanvas(){
       ctx.clearRect(0,0,canvas.width,canvas.height);
 
-      // zacht raster (projectie-vriendelijk)
+      // zacht raster
       ctx.save();
-      ctx.globalAlpha = 0.07;
+      ctx.globalAlpha = 0.06;
       ctx.strokeStyle = "#123";
       for(let x=0; x<=canvas.width; x+=40){
         ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
@@ -637,318 +997,323 @@
       ctx.restore();
     }
 
+    function drawText(x,y,txt,weight=950,size=22,alpha=1){
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.font = `${weight} ${size}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+      ctx.fillStyle = "#123";
+      ctx.fillText(txt,x,y);
+      ctx.restore();
+    }
+
+    function drawStick(x1,y1,x2,y2,thick=12,color="rgba(18,34,51,0.95)"){
+      ctx.save();
+      ctx.lineCap="round";
+      ctx.strokeStyle=color;
+      ctx.lineWidth=thick;
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.stroke();
+
+      ctx.strokeStyle="rgba(255,255,255,0.55)";
+      ctx.lineWidth=Math.max(2, thick*0.25);
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     function lengthsToPixels(a,b,c){
       const maxSide = Math.max(a,b,c);
-      const scale = 340 / maxSide;
-      return { A:a*scale, B:b*scale, C:c*scale };
+      const scale = 360 / maxSide;
+      return {A:a*scale, B:b*scale, C:c*scale};
     }
 
-    function drawLabel(x,y,text){
-      ctx.save();
-      ctx.font = "900 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.fillStyle = "#123";
-      ctx.fillText(text, x, y);
-      ctx.restore();
-    }
-
-    function drawStick(x1,y1,x2,y2,thick=10){
-      ctx.save();
-      ctx.lineCap = "round";
-      ctx.strokeStyle = "rgba(18,34,51,0.95)";
-      ctx.lineWidth = thick;
-      ctx.beginPath();
-      ctx.moveTo(x1,y1);
-      ctx.lineTo(x2,y2);
-      ctx.stroke();
-
-      ctx.strokeStyle = "rgba(255,255,255,0.55)";
-      ctx.lineWidth = Math.max(2, thick*0.25);
-      ctx.beginPath();
-      ctx.moveTo(x1,y1);
-      ctx.lineTo(x2,y2);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function drawScene(){
+    function drawScene(result){ 
+      // result: null | true | false  (true = sluit, false = sluit niet)
       clearCanvas();
       const {a,b,c} = getLengths();
-      const ok = isValidTriangle(a,b,c);
+      const L = longestSideLetter({a,b,c});
 
-      ctx.save();
-      ctx.font = "900 22px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.fillStyle = "#123";
-      ctx.fillText(ok ? "✅ Dit kan een driehoek zijn" : "❌ Dit kan geen driehoek zijn", 22, 34);
-      ctx.restore();
+      drawText(22, 34, "Visualisatie", 1000, 22, 1);
 
-      const {A,B,C} = lengthsToPixels(a,b,c);
+      if(result === null){
+        drawText(22, 70, "Luister en kies de langste zijde. Daarna komt de sluit-check.", 850, 16, .75);
+        // toon 3 losse staven als neutraal beeld
+        const {A,B,C} = lengthsToPixels(a,b,c);
+        const y = 250;
+        drawStick(120, y, 120 + A, y, 12, "rgba(255,107,107,0.95)");
+        drawStick(120, y+70, 120 + B, y+70, 12, "rgba(77,171,247,0.95)");
+        drawStick(120, y+140, 120 + C, y+140, 12, "rgba(105,219,124,0.95)");
+        drawText(125, y-12, "a", 1000, 16, .85);
+        drawText(125, y+58, "b", 1000, 16, .85);
+        drawText(125, y+128, "c", 1000, 16, .85);
+        drawText(22, 440, `Langste zijde nu: ${L} (dat is de laagste toon).`, 900, 16, .75);
+        return;
+      }
 
-      if(!ok){
-        const y = 260;
-        const x0 = 110;
-        drawStick(x0, y, x0 + A, y, 12);
-        drawStick(x0 + A + 18, y, x0 + A + 18 + B, y, 12);
-        drawStick(x0 + A + B + 36, y, x0 + A + B + 36 + C, y, 12);
+      if(result === false){
+        drawText(22, 70, "❌ Driehoek kan niet sluiten.", 1000, 18, .9);
+        drawText(22, 96, "De langste zijde is te lang (niet kleiner dan de andere twee samen).", 850, 15, .75);
 
-        drawLabel(x0 + A/2 - 10, y - 18, "a");
-        drawLabel(x0 + A + 18 + B/2 - 10, y - 18, "b");
-        drawLabel(x0 + A + B + 36 + C/2 - 10, y - 18, "c");
+        // toon “open” beeld: twee staven proberen te sluiten, maar raken niet
+        const {A,B,C} = lengthsToPixels(a,b,c);
+        // laat langste onderaan als referentie
+        const y = 300;
+        const x0 = 160;
 
-        ctx.save();
-        ctx.font = "700 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-        ctx.fillStyle = "rgba(18,34,51,0.72)";
-        ctx.fillText("De driehoek klapt plat als één zijde te lang is.", 22, 410);
-        ctx.restore();
+        // langste (geel)
+        const longPix = (L==="a")?A:(L==="b")?B:C;
+        drawStick(x0, y, x0 + longPix, y, 14, "rgba(245,159,0,0.95)");
+        drawText(x0, y-16, `langste: ${L}`, 1000, 16, .85);
+
+        // som van twee korte: toon als 2 segmenten bovenaan met gapje naar sluiting
+        const others = ["a","b","c"].filter(x=>x!==L);
+        const o1 = others[0], o2 = others[1];
+        const p1 = (o1==="a")?A:(o1==="b")?B:C;
+        const p2 = (o2==="a")?A:(o2==="b")?B:C;
+
+        const y2 = 210;
+        drawStick(x0, y2, x0 + p1, y2, 12, "rgba(18,34,51,0.85)");
+        drawStick(x0 + p1 + 18, y2, x0 + p1 + 18 + p2, y2, 12, "rgba(18,34,51,0.85)");
+        drawText(x0, y2-16, `${o1} + ${o2} samen`, 900, 16, .75);
 
         return;
       }
 
-      // Geldige driehoek: PQ=C, PR=A, QR=B
-      const P = {x: 230, y: 315};
-      const Q = {x: P.x + C, y: P.y};
+      // result === true: teken echte driehoek (simpele constructie)
+      drawText(22, 70, "✅ Driehoek kan sluiten.", 1000, 18, .9);
+      drawText(22, 96, "De langste zijde is kleiner dan de andere twee samen.", 850, 15, .75);
 
-      const x = (A*A - B*B + C*C) / (2*C);
-      const y = Math.sqrt(Math.max(0, A*A - x*x));
-      const R = {x: P.x + x, y: P.y - y};
+      // We tekenen een driehoek op basis van zijden (zonder hoekbogen; simpel en helder)
+      const pix = lengthsToPixels(a,b,c);
+      // Neem c als basis (AB), en bouw punt C zoals eerder (AC=b, BC=a)
+      const A0 = {x: 260, y: 340};
+      const B0 = {x: A0.x + pix.C, y: A0.y};
 
-      drawStick(P.x,P.y, Q.x,Q.y, 12);
-      drawStick(P.x,P.y, R.x,R.y, 12);
-      drawStick(Q.x,Q.y, R.x,R.y, 12);
+      // C berekenen
+      const x = (pix.B*pix.B - pix.A*pix.A + pix.C*pix.C) / (2*pix.C);
+      const y = Math.sqrt(Math.max(0, pix.B*pix.B - x*x));
+      const C0 = {x: A0.x + x, y: A0.y - y};
 
-      drawLabel((P.x+R.x)/2 - 10, (P.y+R.y)/2 - 10, "a");
-      drawLabel((Q.x+R.x)/2 - 10, (Q.y+R.y)/2 - 10, "b");
-      drawLabel((P.x+Q.x)/2 - 10, (P.y+Q.y)/2 + 28, "c");
+      // highlight langste zijde geel
+      function colForSide(letter){
+        if(letter==="a") return "rgba(255,107,107,0.95)";
+        if(letter==="b") return "rgba(77,171,247,0.95)";
+        return "rgba(105,219,124,0.95)";
+      }
 
-      ctx.save();
-      ctx.fillStyle = "#123";
-      [P,Q,R].forEach(pt=>{
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 5, 0, Math.PI*2);
-        ctx.fill();
-      });
-      ctx.restore();
+      // BC = a
+      drawStick(B0.x,B0.y, C0.x,C0.y, 12, (L==="a")?"rgba(245,159,0,0.95)":colForSide("a"));
+      // AC = b
+      drawStick(A0.x,A0.y, C0.x,C0.y, 12, (L==="b")?"rgba(245,159,0,0.95)":colForSide("b"));
+      // AB = c
+      drawStick(A0.x,A0.y, B0.x,B0.y, 12, (L==="c")?"rgba(245,159,0,0.95)":colForSide("c"));
 
-      ctx.save();
-      ctx.font = "700 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.fillStyle = "rgba(18,34,51,0.72)";
-      ctx.fillText("Elke zijde is kleiner dan de som van de andere twee.", 22, 410);
-      ctx.restore();
+      drawText(260, 360, "A", 1000, 16, .85);
+      drawText(B0.x+6, B0.y+20, "B", 1000, 16, .85);
+      drawText(C0.x-18, C0.y-10, "C", 1000, 16, .85);
+
+      drawText(22, 440, `Langste zijde: ${L} (laagste toon)`, 900, 16, .75);
     }
 
-    // --- Quiz helpers (speels)
-    function showQuiz(){ quiz.classList.remove("hidden"); }
-    function hideQuiz(){ quiz.classList.add("hidden"); }
+    // ---- Onderdeel 1 logic
+    function handlePickPart1(pick){
+      clearChoiceStyles(choices1, "data-pick");
+      const correct = longestSideLetter(getLengths());
 
-    function addStar(){
-      stars++;
-      starsEl.textContent = String(stars);
+      const btn = choices1.querySelector(`button[data-pick="${pick}"]`);
+      if(!btn) return;
+
+      if(pick === correct){
+        btn.classList.add("correct");
+        part1Solved = true;
+        toPart2.disabled = false;
+
+        setFeedback("good", "Juist! ✅",
+          `De langste zijde is ${correct}. Dat is de laagste toon. Je mag naar Onderdeel 2.`);
+      }else{
+        btn.classList.add("wrong");
+        setFeedback("bad", "Niet helemaal ❌",
+          "Tip: de langste zijde heeft de laagste toon. Klik nog eens nadat je de tonen opnieuw beluisterd hebt.");
+      }
     }
 
-    function failingInequalities(a,b,c){
-      const fails = [];
-      if(!(a < b + c)) fails.push("a < b + c");
-      if(!(b < a + c)) fails.push("b < a + c");
-      if(!(c < a + b)) fails.push("c < a + b");
-      return fails;
+    function unlockPart2(){
+      part2.style.opacity = "1";
+      playTones2.disabled = false;
+      choices2.querySelectorAll("button").forEach(b=> b.disabled = false);
+      setFeedback("", "Onderdeel 2 gestart",
+        "Stap 1: kies opnieuw de langste zijde (laagste toon). Daarna komt stap 2: de sluit-check met blokjes.");
     }
 
-    function tooLongSides(a,b,c){
-      const tooLong = [];
-      if(a >= b + c) tooLong.push("a");
-      if(b >= a + c) tooLong.push("b");
-      if(c >= a + b) tooLong.push("c");
-      return tooLong;
+    // ---- Onderdeel 2 step 1
+    function handlePickPart2(pick){
+      if(!part1Solved) return;
+
+      clearChoiceStyles(choices2, "data-pick2");
+      const correct = longestSideLetter(getLengths());
+      const btn = choices2.querySelector(`button[data-pick2="${pick}"]`);
+      if(!btn) return;
+
+      if(pick === correct){
+        btn.classList.add("correct");
+        part2Step1Solved = true;
+        chosenLongestInPart2 = pick;
+        unlockCloseCheck.disabled = false;
+
+        // render comparison blocks for this correct longest side
+        renderCompareBlocks(pick);
+
+        setFeedback("good", "Stap 1 juist ✅",
+          `Je koos ${pick} als langste zijde. Nu mag je naar stap 2: kan de driehoek sluiten?`);
+      }else{
+        btn.classList.add("wrong");
+        part2Step1Solved = false;
+        chosenLongestInPart2 = null;
+        unlockCloseCheck.disabled = true;
+        checkClose.disabled = true;
+        blocksCompare.innerHTML = "";
+        compareText.textContent = "Kies eerst stap 1.";
+
+        setFeedback("bad", "Stap 1 fout ❌",
+          "Luister opnieuw: langste zijde = laagste toon. Kies nog eens.");
+      }
     }
 
-    function renderOptionButtons(container, labels, correctSet, hintEl, correctHint){
-      container.innerHTML = "";
-      hintEl.textContent = "";
-      container.dataset.solved = "0";
-
-      labels.forEach(label => {
-        const btn = document.createElement("button");
-        btn.className = "optbtn";
-        btn.type = "button";
-        btn.textContent = label;
-
-        btn.addEventListener("click", () => {
-          if(container.dataset.solved === "1") return;
-
-          const ok = correctSet.has(label);
-          if(ok){
-            btn.classList.add("correct");
-            container.dataset.solved = "1";
-            addStar();
-            hintEl.textContent = correctHint;
-          }else{
-            btn.classList.add("wrong");
-            hintEl.textContent =
-              "Niet helemaal. Tip: zoek de zijde die even lang of langer is dan de som van de andere twee.";
-          }
-        });
-
-        container.appendChild(btn);
-      });
+    function unlockStep2(){
+      if(!part2Step1Solved) return;
+      checkClose.disabled = false;
+      setFeedback("", "Stap 2",
+        "Kijk naar de blokjes: zijn de twee korte samen groter dan de langste? Klik dan op ‘Controleer sluiten’.");
     }
 
-    function buildFailureQuiz(a,b,c){
-      showQuiz();
-      hintTooLong.textContent = "";
-      hintIneq.textContent = "";
+    function runCloseCheck(){
+      if(!part2Step1Solved || !chosenLongestInPart2) return;
 
-      // 1) te lange zijde(n)
-      const tls = tooLongSides(a,b,c);
-      const correctSides = new Set(tls);
-      renderOptionButtons(
-        optTooLong,
-        ["a","b","c"],
-        correctSides,
-        hintTooLong,
-        `Juist! Zijde ${tls.join(" en ")} is te lang. Daarom sluit de driehoek niet.`
-      );
-
-      // 2) welke ongelijkheid klopt niet? (kies 1 uit de falende)
-      const fails = failingInequalities(a,b,c);
-      const chosenFail = fails[Math.floor(Math.random()*fails.length)];
-      renderOptionButtons(
-        optIneq,
-        ["a < b + c","b < a + c","c < a + b"],
-        new Set([chosenFail]),
-        hintIneq,
-        `Yes! ${chosenFail} klopt niet.`
-      );
-    }
-
-    // --- Interactie: individuele toon beluisteren
-    function playSingle(side){
-      ensureAudio();
-      const {a,b,c} = getLengths();
-      const len = side === "a" ? a : (side === "b" ? b : c);
-      playTone(lengthToFreq(len), audioCtx.currentTime + 0.02, 0.20);
-    }
-
-    document.querySelectorAll("button[data-tap]").forEach(btn=>{
-      btn.addEventListener("click", () => playSingle(btn.dataset.tap));
-    });
-
-    // --- Spel flow: Speel driehoek
-    function playTriangle(){
+      const canClose = renderCompareBlocks(chosenLongestInPart2); // refresh compare blocks
       ensureAudio();
 
+      // Speel tonen + feedback
       const {a,b,c} = getLengths();
-      const fa = lengthToFreq(a);
-      const fb = lengthToFreq(b);
-      const fc = lengthToFreq(c);
-
+      const fa = lengthToFreq(a), fb = lengthToFreq(b), fc = lengthToFreq(c);
       const t0 = audioCtx.currentTime + 0.06;
-
-      // 3 tonen na elkaar
       playTone(fa, t0, 0.18);
       playTone(fb, t0 + 0.24, 0.18);
       playTone(fc, t0 + 0.48, 0.18);
 
-      const ok = isValidTriangle(a,b,c);
       const after = t0 + 0.75;
 
-      if(ok){
-        hideQuiz();
+      if(canClose && isTriangleClosable({a,b,c})){
         const avg = (fa+fb+fc)/3;
         const base = Math.min(440, Math.max(260, avg));
-
-        setTimeout(()=> { ensureAudio(); playGoodChord(base); },
-          Math.max(0, (after - audioCtx.currentTime) * 1000));
-
-        setFeedback("good", "Ja! Dit kan een driehoek zijn. ✅",
-          "Je voldoet aan a < b + c, b < a + c en c < a + b.");
-        bumpScore();
+        setTimeout(()=>{ ensureAudio(); playGoodChord(base); }, Math.max(0, (after - audioCtx.currentTime)*1000));
+        setFeedback("good", "✅ Driehoek kan sluiten!",
+          "De langste zijde is kleiner dan de andere twee samen. Dit kan een echte driehoek zijn.");
+        drawScene(true);
       }else{
-        buildFailureQuiz(a,b,c);
-
-        setTimeout(()=> { ensureAudio(); playBadSound(); },
-          Math.max(0, (after - audioCtx.currentTime) * 1000));
-
-        setFeedback("bad", "Nee! Deze zijden kunnen geen driehoek vormen. ❌",
-          "Minstens één zijde is te lang: de driehoek klapt plat.");
+        setTimeout(()=>{ ensureAudio(); playBadSound(); }, Math.max(0, (after - audioCtx.currentTime)*1000));
+        setFeedback("bad", "❌ Driehoek kan niet sluiten",
+          "De langste zijde is te lang: ze is niet kleiner dan de andere twee samen.");
+        drawScene(false);
       }
-
-      drawScene();
     }
 
-    // --- Presets
-    preset.addEventListener("change", () => {
-      if(!preset.value) return;
-      const [a,b,c] = preset.value.split(",").map(Number);
-      ra.value = String(a);
-      rb.value = String(b);
-      rc.value = String(c);
-      updateReadouts();
-      setFeedback("", "Klaar om te testen",
-        "Klik op ‘Speel driehoek’ en luister + kijk wat er gebeurt.");
-    });
-
-    // --- Random (mix geldig/ongeldig)
-    function randInt(min,max){
-      return Math.floor(Math.random()*(max-min+1)) + min;
-    }
+    // ---- Random / preset / reset
+    function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
     function setRandom(){
       const min = Number(ra.min), max = Number(ra.max);
-      const wantValid = Math.random() < 0.5;
+      const wantClosable = Math.random() < 0.5;
 
       let a,b,c;
-      if(wantValid){
-        a = randInt(min, max);
-        b = randInt(min, max);
-        const low = Math.max(min, Math.abs(a-b) + 1);
-        const high = Math.min(max, a + b - 1);
-        c = (low <= high) ? randInt(low, high) : randInt(min, max);
+      if(wantClosable){
+        // maak een geldige driehoek
+        a = randInt(min,max);
+        b = randInt(min,max);
+        const low = Math.max(min, Math.abs(a-b)+1);
+        const high = Math.min(max, a+b-1);
+        c = (low<=high) ? randInt(low,high) : randInt(min,max);
       }else{
-        a = randInt(min, max);
-        b = randInt(min, max);
-        c = Math.min(max, a + b + randInt(0, 6));
-        if(isValidTriangle(a,b,c)) c = Math.min(max, a + b);
+        // maak "sluit niet": maak één zijde te lang
+        a = randInt(min,max);
+        b = randInt(min,max);
+        c = Math.min(max, a+b + randInt(0,6));
+        // forceer indien toch toevallig geldig
+        const L = Math.max(a,b,c);
+        const sum = a+b+c - L;
+        if(L < sum){
+          // maak hem nét fout
+          c = Math.min(max, a+b);
+        }
       }
 
       ra.value = String(a);
       rb.value = String(b);
       rc.value = String(c);
-
       updateReadouts();
-      setFeedback("", "Willekeurige zijden gekozen 🎲",
-        "Klik op ‘Speel driehoek’ om te controleren.");
     }
 
-    // --- Reset
+    function setPreset(val){
+      const [a,b,c] = val.split(",").map(Number);
+      ra.value = String(a);
+      rb.value = String(b);
+      rc.value = String(c);
+      updateReadouts();
+    }
+
     function resetAll(){
-      level = 1;
-      score = 0;
-      stars = 0;
-
-      applyLevelLimits();
-      ra.value = "7"; rb.value = "9"; rc.value = "12";
-
-      scoreEl.textContent = "0";
-      levelEl.textContent = "1";
-      starsEl.textContent = "0";
-
-      preset.value = "";
-      hideQuiz();
-
+      ra.value="7"; rb.value="9"; rc.value="12";
+      preset.value="";
       updateReadouts();
-      setFeedback("", "Tip",
-        "Pas de schuiven aan en test: wanneer wordt het wél of niet een driehoek?");
     }
 
-    // --- Events
+    // ---- Events
+    startGame.addEventListener("click", ()=> {
+      overlay.style.display = "none";
+      setFeedback("", "Onderdeel 1",
+        "Klik ‘Speel tonen’ en kies daarna welke zijde het langst is (laagste toon).");
+      drawScene(null);
+    });
+
     [ra,rb,rc].forEach(r => r.addEventListener("input", updateReadouts));
-    btnPlay.addEventListener("click", playTriangle);
-    btnRandom.addEventListener("click", setRandom);
-    btnReset.addEventListener("click", resetAll);
+
+    preset.addEventListener("change", ()=> {
+      if(!preset.value) return;
+      setPreset(preset.value);
+    });
+
+    randomBtn.addEventListener("click", setRandom);
+    resetBtn.addEventListener("click", resetAll);
+
+    playTones1.addEventListener("click", ()=> { playABC(); setFeedback("", "Luister",
+      "Hoor je de laagste toon? Dat is de langste zijde."); });
+
+    choices1.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button[data-pick]");
+      if(!btn) return;
+      handlePickPart1(btn.dataset.pick);
+    });
+
+    toPart2.addEventListener("click", unlockPart2);
+
+    playTones2.addEventListener("click", ()=> { playABC(); setFeedback("", "Luister (stap 1)",
+      "Kies de langste zijde: dat is de laagste toon."); });
+
+    choices2.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button[data-pick2]");
+      if(!btn) return;
+      handlePickPart2(btn.dataset.pick2);
+    });
+
+    unlockCloseCheck.addEventListener("click", unlockStep2);
+    checkClose.addEventListener("click", runCloseCheck);
 
     // Init
-    applyLevelLimits();
     updateReadouts();
-    drawScene();
+    drawScene(null);
   </script>
 </body>
 </html>
