@@ -1062,7 +1062,7 @@ function drawGame2(){
   drawGrid(ctx2,W,H);
 
   p2Level.querySelector("span").textContent = `Spel 2 • Level ${g2Index+1}/5`;
-  drawText(ctx2, 18, 38, "Spel 2: geluid + blokjes — tekening misleidt!", 24, 1000, 1);
+  drawText(ctx2, 18, 38, "Spel 2: langste zijde + driehoeksongelijkheid", 24, 1000, 1);
 
   const tri = getOrBuildG2Tri();
   const notes = computeNotePositions(tri);
