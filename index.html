@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Driehoeksongelijkheid </title>
+  <title>Driehoeksongelijkheid</title>
   <style>
     :root{
       --bg:#f6fbff;
@@ -254,8 +254,7 @@
 
 <header>
   <h1>🎵 Driehoeksongelijkheid</h1>
-  <p class="subtitle">
-  </p>
+  <p class="subtitle"></p>
 </header>
 
 <!-- INTRO SPEL 1 -->
@@ -376,7 +375,7 @@
       <canvas id="cv2" width="1200" height="640" aria-label="Spel 2 canvas"></canvas>
 
       <div class="miniPoster">
-        <div class="txt">⚠️ Spel 2: <b>Tel de blokjes</b>. De tekening toont altijd een driehoek, ook als de verhoudingen <b>niet kloppen </b>.</div>
+        <div class="txt">⚠️ Spel 2: <b>Tel de blokjes</b>. De tekening toont altijd een driehoek, ook als de verhoudingen <b>niet kloppen</b>.</div>
         <img src="spel2.jpg" alt="Spel 2 mini">
       </div>
 
@@ -451,9 +450,9 @@
 
 <script>
 /* =========================
-   LEVELS + SCORE
+   LEVELS (worden geschud bij restart)
 ========================= */
-const GAME1_LEVELS = [
+let GAME1_LEVELS = [
   {a:12, b:9,  c:7},
   {a:5,  b:11, c:8},
   {a:6,  b:8,  c:13},
@@ -461,7 +460,7 @@ const GAME1_LEVELS = [
   {a:10, b:16, c:9}
 ];
 
-const GAME2_LEVELS = [
+let GAME2_LEVELS = [
   {a:9,  b:4,  c:6},
   {a:8,  b:3,  c:5},
   {a:4,  b:10, c:7},
@@ -472,11 +471,41 @@ const GAME2_LEVELS = [
 const TOTAL_MAX = 15;       // 5 + 10
 const CONFETTI_FROM = 12;   // confetti vanaf 12/15 (~80%)
 
+/* =========================
+   SHUFFLE
+========================= */
+function shuffleInPlace(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/* =========================
+   SCORE + FIRST-TRY LOGICA
+   (als je één fout maakt in een onderdeel => dat punt is weg)
+========================= */
 let g1Score = 0; // /5
 let g2Score = 0; // /10
-const g1LevelPointGiven = Array(GAME1_LEVELS.length).fill(false);
-const g2LongestPointGiven = Array(GAME2_LEVELS.length).fill(false);
-const g2RulePointGiven = Array(GAME2_LEVELS.length).fill(false);
+
+let g1LevelPointGiven = [];
+let g1HadWrongAttempt = [];
+
+let g2LongestPointGiven = [];
+let g2RulePointGiven = [];
+let g2LongestHadWrongAttempt = [];
+let g2RuleHadWrongAttempt = [];
+
+function initScoreState(){
+  g1LevelPointGiven = Array(GAME1_LEVELS.length).fill(false);
+  g1HadWrongAttempt = Array(GAME1_LEVELS.length).fill(false);
+
+  g2LongestPointGiven = Array(GAME2_LEVELS.length).fill(false);
+  g2RulePointGiven   = Array(GAME2_LEVELS.length).fill(false);
+  g2LongestHadWrongAttempt = Array(GAME2_LEVELS.length).fill(false);
+  g2RuleHadWrongAttempt    = Array(GAME2_LEVELS.length).fill(false);
+}
 
 /* =========================
    PAGINA’S
@@ -492,7 +521,6 @@ const startGame2Btn  = document.getElementById("startGame2");
 const resumeGame1Btn = document.getElementById("resumeGame1");
 const resumeGame2Btn = document.getElementById("resumeGame2");
 
-/* Slimme "uitleg opnieuw": onthoud waar je vandaan kwam */
 let pendingReturn = null; // {game:1|2}
 
 function showSingle(el){
@@ -510,7 +538,6 @@ function showGame(n){
 }
 
 function updateResumeButtons(){
-  // standaard: start-knoppen zichtbaar, resume verborgen
   resumeGame1Btn.style.display = "none";
   resumeGame2Btn.style.display = "none";
   startGame1Btn.style.display = "block";
@@ -528,13 +555,8 @@ function updateResumeButtons(){
 
 function goToIntroSmart(gameNumber){
   pendingReturn = {game: gameNumber};
-  if(gameNumber === 1){
-    updateResumeButtons();
-    showSingle(intro1);
-  }else{
-    updateResumeButtons();
-    showSingle(intro2);
-  }
+  updateResumeButtons();
+  showSingle(gameNumber === 1 ? intro1 : intro2);
 }
 
 /* =========================
@@ -551,7 +573,6 @@ function updateScores(){
   p2ScorePill.textContent = `Score: ${g2Score}/10`;
   p2ScorePill2.textContent = `Score: ${g2Score}/10`;
 }
-updateScores();
 
 /* =========================
    AUDIO
@@ -613,13 +634,30 @@ function computeAnglesFromSides(a,b,c){
   const C = 180 - A - B;
   return {A,B,C};
 }
+
+/* ✅ FIX: ook als verhoudingen niet kloppen => toch een "echte" teken-driehoek */
 function makeDrawableSides(a,b,c){
   if(ruleHolds(a,b,c)) return {da:a, db:b, dc:c};
-  const maxSide = Math.max(a,b,c);
-  const sumOthers = (a+b+c) - maxSide;
-  const targetMax = Math.max(1, sumOthers - 1);
-  const scale = targetMax / maxSide;
-  return { da: Math.max(1, a*scale), db: Math.max(1, b*scale), dc: Math.max(1, c*scale) };
+
+  const sides = [
+    {k:"a", v:a},
+    {k:"b", v:b},
+    {k:"c", v:c},
+  ].sort((x,y)=>y.v-x.v);
+
+  const maxK = sides[0].k;
+  const s1 = sides[1].v;
+  const s2 = sides[2].v;
+
+  // duidelijke marge zodat het geen lijn wordt
+  const maxDrawable = Math.max(1, 0.92 * (s1 + s2));
+
+  const out = {da:a, db:b, dc:c};
+  if(maxK === "a") out.da = maxDrawable;
+  if(maxK === "b") out.db = maxDrawable;
+  if(maxK === "c") out.dc = maxDrawable;
+
+  return out;
 }
 
 /* =========================
@@ -647,6 +685,28 @@ function computeTrianglePoints(drawA, drawB, drawC, W, H, opts={}){
 
   return {A,B,C, px};
 }
+
+/* ✅ FIX: driehoek altijd volledig in beeld */
+function fitTriangleToCanvas(tri, W, H, pad=28){
+  const pts = [tri.A, tri.B, tri.C];
+  const minX = Math.min(...pts.map(p=>p.x));
+  const maxX = Math.max(...pts.map(p=>p.x));
+  const minY = Math.min(...pts.map(p=>p.y));
+  const maxY = Math.max(...pts.map(p=>p.y));
+
+  let dx = 0, dy = 0;
+  if(minX < pad) dx = pad - minX;
+  if(maxX > W - pad) dx = (W - pad) - maxX;
+  if(minY < pad) dy = pad - minY;
+  if(maxY > H - pad) dy = (H - pad) - maxY;
+
+  tri.A.x += dx; tri.A.y += dy;
+  tri.B.x += dx; tri.B.y += dy;
+  tri.C.x += dx; tri.C.y += dy;
+
+  return tri;
+}
+
 function drawGrid(ctx, W, H){
   ctx.save();
   ctx.globalAlpha = 0.06;
@@ -780,7 +840,9 @@ function drawGame1(){
   p1Level.querySelector("span").textContent = `Spel 1 • Level ${g1Index+1}/5`;
   drawText(ctx1, 18, 38, "Spel 1: klik op de nootjes bij de hoeken", 24, 1000, 1);
 
-  const tri = computeTrianglePoints(a,b,c, W, H, {maxPx: 640, originX: W*0.16, originY: H*0.78});
+  let tri = computeTrianglePoints(a,b,c, W, H, {maxPx: 640, originX: W*0.16, originY: H*0.78});
+  tri = fitTriangleToCanvas(tri, W, H, 28);
+
   const notes = computeNotePositions(tri);
 
   drawStick(ctx1, tri.B, tri.C, 14, "rgba(255,107,107,0.95)"); // a
@@ -807,6 +869,7 @@ function drawGame1(){
 
   g1DrawData = {tri, notes, angles: computeAnglesFromSides(a,b,c)};
 }
+
 function playAngleToneGame1(vertex){
   ensureAudio();
   const {a,b,c} = currentG1();
@@ -816,6 +879,17 @@ function playAngleToneGame1(vertex){
   g1LastPlayed = vertex;
   drawGame1();
 }
+
+/* score feedback per level (0/1 zodra fout) */
+function g1LevelPointStatusText(){
+  const lost = g1HadWrongAttempt[g1Index];
+  const solved = g1LevelPointGiven[g1Index];
+  if(!lost && !solved) return "Punt dit level: <b>1/1</b> (zolang je geen fout maakt)";
+  if(lost && !solved)  return "Punt dit level: <b>0/1</b> (je maakte al een fout)";
+  if(!lost && solved)  return "Punt dit level: <b>1/1</b> ✅";
+  return "Punt dit level: <b>0/1</b> (opgelost, maar eerder fout)";
+}
+
 function handleG1Pick(pick){
   hideResult(p1Result);
   clearMCQ(choices1, "data-pick");
@@ -829,18 +903,23 @@ function handleG1Pick(pick){
     btn.classList.add("correct");
     showResult(p1Result, true);
 
+    // punt enkel als first-try
+    if(!g1LevelPointGiven[g1Index]){
+      if(!g1HadWrongAttempt[g1Index]){
+        g1Score++;
+      }
+      g1LevelPointGiven[g1Index] = true;
+      updateScores();
+    }
+
     hint1.className = "hint good";
-    hint1.innerHTML = `✅ Juist! Tegenover de grootste hoek ligt de langste zijde: <b>${correct}</b>.`;
+    hint1.innerHTML =
+      `✅ Juist! Tegenover de grootste hoek ligt de langste zijde: <b>${correct}</b>.<br/>` +
+      `${g1LevelPointStatusText()}`;
 
     g1Solved = true;
     next1.disabled = false;
     ensureAudio(); playGoodChord();
-
-    if(!g1LevelPointGiven[g1Index]){
-      g1LevelPointGiven[g1Index] = true;
-      g1Score++;
-      updateScores();
-    }
 
     if(g1Index === GAME1_LEVELS.length - 1){
       setTimeout(()=>showSingle(intro2), 500);
@@ -849,11 +928,18 @@ function handleG1Pick(pick){
     btn.classList.add("wrong");
     showResult(p1Result, false);
 
+    // vanaf nu is punt verloren voor dit level
+    g1HadWrongAttempt[g1Index] = true;
+
     hint1.className = "hint bad";
-    hint1.innerHTML = `❌ Nog niet. Klik opnieuw op de nootjes en zoek de <b>laagste toon</b>.`;
+    hint1.innerHTML =
+      `❌ Nog niet. Klik opnieuw op de nootjes en zoek de <b>laagste toon</b>.<br/>` +
+      `${g1LevelPointStatusText()}`;
+
     ensureAudio(); playBadSound();
   }
 }
+
 function nextG1(){
   if(!g1Solved) return;
   if(g1Index < GAME1_LEVELS.length - 1){
@@ -865,13 +951,15 @@ function nextG1(){
     hideResult(p1Result);
 
     hint1.className = "hint";
-    hint1.innerHTML = `Nieuw level! Klik op de nootjes en vind de langste zijde.`;
+    hint1.innerHTML =
+      `Nieuw level! Klik op de nootjes en vind de langste zijde.<br/>${g1LevelPointStatusText()}`;
     drawGame1();
   }else{
     hint1.className = "hint good";
     hint1.innerHTML = `🎉 Spel 1 is klaar!`;
   }
 }
+
 cv1.addEventListener("click", (e)=>{
   if(!g1DrawData) return;
   const rect = cv1.getBoundingClientRect();
@@ -900,7 +988,6 @@ const hint2b = document.getElementById("hint2b");
 const choices2 = document.getElementById("choices2");
 const choicesRule = document.getElementById("choicesRule");
 const next2 = document.getElementById("next2");
-const backToIntro2Btn = document.getElementById("backToIntro2");
 const p2Result = document.getElementById("p2Result");
 
 let g2Index = 0;
@@ -921,7 +1008,10 @@ function drawGame2(){
   drawText(ctx2, 18, 38, "Spel 2: luister + blokjes → klopt de driehoeksongelijkheid?", 24, 1000, 1);
 
   const {da,db,dc} = makeDrawableSides(a,b,c);
-  const tri = computeTrianglePoints(da,db,dc, W, H, {maxPx: 760, originX: W*0.12, originY: H*0.72});
+
+  let tri = computeTrianglePoints(da,db,dc, W, H, {maxPx: 760, originX: W*0.12, originY: H*0.72});
+  tri = fitTriangleToCanvas(tri, W, H, 28);
+
   const notes = computeNotePositions(tri);
 
   drawStick(ctx2, tri.B, tri.C, 14, "rgba(255,107,107,0.95)"); // a
@@ -959,6 +1049,7 @@ function drawGame2(){
 
   g2DrawData = {tri, notes};
 }
+
 function playAngleToneGame2(vertex){
   ensureAudio();
   const {a,b,c} = currentG2();
@@ -969,6 +1060,7 @@ function playAngleToneGame2(vertex){
   g2LastPlayed = vertex;
   drawGame2();
 }
+
 cv2.addEventListener("click", (e)=>{
   if(!g2DrawData) return;
   const rect = cv2.getBoundingClientRect();
@@ -980,6 +1072,27 @@ cv2.addEventListener("click", (e)=>{
   if(hit("B")) return playAngleToneGame2("B");
   if(hit("C")) return playAngleToneGame2("C");
 });
+
+function g2StepPointStatusText(){
+  const lLost = g2LongestHadWrongAttempt[g2Index];
+  const lGiven = g2LongestPointGiven[g2Index];
+
+  const rLost = g2RuleHadWrongAttempt[g2Index];
+  const rGiven = g2RulePointGiven[g2Index];
+
+  const lTxt = (!lGiven && !lLost) ? "Stap 1 punt: <b>1/1</b>" :
+               (lGiven && !lLost) ? "Stap 1 punt: <b>1/1</b> ✅" :
+               (!lGiven && lLost) ? "Stap 1 punt: <b>0/1</b> (al fout)" :
+                                    "Stap 1 punt: <b>0/1</b>";
+
+  const rTxt = (!rGiven && !rLost) ? "Stap 2 punt: <b>1/1</b>" :
+               (rGiven && !rLost) ? "Stap 2 punt: <b>1/1</b> ✅" :
+               (!rGiven && rLost) ? "Stap 2 punt: <b>0/1</b> (al fout)" :
+                                    "Stap 2 punt: <b>0/1</b>";
+
+  return `${lTxt}<br/>${rTxt}`;
+}
+
 function resetG2Answers(){
   g2LongestSolved = false;
   g2RuleSolved = false;
@@ -988,9 +1101,10 @@ function resetG2Answers(){
   choicesRule.querySelectorAll("button").forEach(b=> b.disabled = true);
   next2.disabled = true;
   hint2b.className = "hint";
-  hint2b.textContent = "Nog geen antwoord gegeven.";
+  hint2b.innerHTML = `Nog geen antwoord gegeven.<br/>${g2StepPointStatusText()}`;
   hideResult(p2Result);
 }
+
 function handleG2PickLongest(pick){
   hideResult(p2Result);
   clearMCQ(choices2, "data-pick2");
@@ -1005,28 +1119,37 @@ function handleG2PickLongest(pick){
     g2LongestSolved = true;
 
     if(!g2LongestPointGiven[g2Index]){
+      if(!g2LongestHadWrongAttempt[g2Index]) g2Score++;
       g2LongestPointGiven[g2Index] = true;
-      g2Score++;
       updateScores();
     }
 
     choicesRule.querySelectorAll("button").forEach(b=> b.disabled = false);
+
     hint2b.className = "hint";
-    hint2b.textContent = "Goed! Nu: klopt de regel? (langste < som andere twee) — kijk enkel naar de blokjes.";
+    hint2b.innerHTML =
+      `Goed! Nu: klopt de regel? (langste < som andere twee) — kijk enkel naar de blokjes.<br/>${g2StepPointStatusText()}`;
+
     ensureAudio(); playGoodChord();
   }else{
     btn.classList.add("wrong");
     g2LongestSolved = false;
+
+    // punt voor stap 1 is nu weg
+    g2LongestHadWrongAttempt[g2Index] = true;
 
     choicesRule.querySelectorAll("button").forEach(b=> b.disabled = true);
     clearMCQ(choicesRule, "data-rule");
     next2.disabled = true;
 
     hint2b.className = "hint bad";
-    hint2b.textContent = "❌ Niet juist. Zoek de laagste toon (grootste hoek) en neem de overstaande zijde.";
+    hint2b.innerHTML =
+      `❌ Niet juist. Zoek de laagste toon (grootste hoek) en neem de overstaande zijde.<br/>${g2StepPointStatusText()}`;
+
     ensureAudio(); playBadSound();
   }
 }
+
 function handleG2PickRule(ans){
   if(!g2LongestSolved) return;
 
@@ -1051,28 +1174,37 @@ function handleG2PickRule(ans){
     showResult(p2Result, true);
 
     if(!g2RulePointGiven[g2Index]){
+      if(!g2RuleHadWrongAttempt[g2Index]) g2Score++;
       g2RulePointGiven[g2Index] = true;
-      g2Score++;
       updateScores();
     }
 
     hint2b.className = "hint good";
-    hint2b.innerHTML = correct
-      ? `✅ Klopt! ${m} < ${sumOthers}. (Je baseerde je op de blokjes 👍)`
-      : `✅ Juist: het klopt <b>niet</b>. ${m} is niet kleiner dan ${sumOthers}. (Kijk naar de blokjes 👍)`;
+    hint2b.innerHTML =
+      (correct
+        ? `✅ Klopt! ${m} < ${sumOthers}. (Je baseerde je op de blokjes 👍)`
+        : `✅ Juist: het klopt <b>niet</b>. ${m} is niet kleiner dan ${sumOthers}. (Kijk naar de blokjes 👍)`)
+      + `<br/>${g2StepPointStatusText()}`;
+
     ensureAudio(); playGoodChord();
   }else{
     btn.classList.add("wrong");
     g2RuleSolved = false;
     next2.disabled = true;
 
+    // punt voor stap 2 is nu weg
+    g2RuleHadWrongAttempt[g2Index] = true;
+
     showResult(p2Result, false);
 
     hint2b.className = "hint bad";
-    hint2b.innerHTML = `❌ Niet juist. Vergelijk de langste zijde (${m}) met de som van de andere twee (${sumOthers}). (Enkel blokjes!)`;
+    hint2b.innerHTML =
+      `❌ Niet juist. Vergelijk de langste zijde (${m}) met de som van de andere twee (${sumOthers}). (Enkel blokjes!)<br/>${g2StepPointStatusText()}`;
+
     ensureAudio(); playBadSound();
   }
 }
+
 choices2.addEventListener("click", (e)=>{
   const btn = e.target.closest("button[data-pick2]");
   if(!btn) return;
@@ -1125,7 +1257,6 @@ next2.addEventListener("click", nextG2);
 /* =========================
    KNOPPEN NAVIGATIE
 ========================= */
-// Start vanuit uitleg (geen reset; gaat gewoon naar huidige stand)
 startGame1Btn.addEventListener("click", ()=>{
   pendingReturn = null;
   updateResumeButtons();
@@ -1137,7 +1268,6 @@ startGame2Btn.addEventListener("click", ()=>{
   showGame(2);
 });
 
-// Slimme terugknoppen op uitleg
 resumeGame1Btn.addEventListener("click", ()=>{
   pendingReturn = null;
   updateResumeButtons();
@@ -1149,29 +1279,30 @@ resumeGame2Btn.addEventListener("click", ()=>{
   showGame(2);
 });
 
-// “Bekijk uitleg opnieuw” in elk level (slim: onthoud waar je vandaan komt)
 document.getElementById("help1").addEventListener("click", ()=>goToIntroSmart(1));
 document.getElementById("help2").addEventListener("click", ()=>goToIntroSmart(2));
 
-// Overige knoppen
 goIntro2.addEventListener("click", ()=>{ pendingReturn=null; updateResumeButtons(); showSingle(intro2); });
 goIntro2Top.addEventListener("click", ()=>{ pendingReturn=null; updateResumeButtons(); showSingle(intro2); });
 
 document.getElementById("backToIntro2").addEventListener("click", ()=>{ pendingReturn=null; updateResumeButtons(); showSingle(intro2); });
 document.getElementById("backToIntro1").addEventListener("click", ()=>{ pendingReturn=null; updateResumeButtons(); showSingle(intro1); });
 
-/* Eindscherm knoppen */
 document.getElementById("goIntro1End").addEventListener("click", ()=>{ pendingReturn=null; updateResumeButtons(); showSingle(intro1); });
+
 document.getElementById("restartAll").addEventListener("click", ()=>{
-  // reset alles
+  // 1) shuffle vragenvolgorde
+  shuffleInPlace(GAME1_LEVELS);
+  shuffleInPlace(GAME2_LEVELS);
+
+  // 2) reset scores + index + flags
   g1Score = 0; g2Score = 0;
   g1Index = 0; g2Index = 0;
-  for(let i=0;i<g1LevelPointGiven.length;i++) g1LevelPointGiven[i]=false;
-  for(let i=0;i<g2LongestPointGiven.length;i++) g2LongestPointGiven[i]=false;
-  for(let i=0;i<g2RulePointGiven.length;i++) g2RulePointGiven[i]=false;
+
+  initScoreState();
   updateScores();
 
-  // reset UI states
+  // 3) reset UI states
   resetGame1UI();
   resetG2Answers();
   drawGame1();
@@ -1192,14 +1323,10 @@ function resetGame1UI(){
   g1Solved = false;
   g1LastPlayed = null;
   hint1.className = "hint";
-  hint1.innerHTML = `Klik op de nootjes bij de hoeken. Grootste hoek → laagste toon. Kies de langste zijde.`;
+  hint1.innerHTML =
+    `Klik op de nootjes bij de hoeken. Grootste hoek → laagste toon. Kies de langste zijde.<br/>${g1LevelPointStatusText()}`;
   hideResult(p1Result);
 }
-resetGame1UI();
-resetG2Answers();
-
-/* Volgende level spel1 */
-next1.addEventListener("click", nextG1);
 
 /* =========================
    CONFETTI (simpel, neutraal)
@@ -1271,8 +1398,15 @@ function stepConfetti(){
 /* =========================
    INIT
 ========================= */
+initScoreState();
+updateScores();
+
+resetGame1UI();
+resetG2Answers();
+
 drawGame1();
 drawGame2();
+
 updateResumeButtons();
 showSingle(intro1);
 </script>
