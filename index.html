@@ -274,7 +274,7 @@
       </div>
     </div>
   </div>
-</section>
+</section>t
 
 <section id="intro2" class="pageSingle">
   <div class="hero">
@@ -357,7 +357,6 @@
       <canvas id="cv2" aria-label="Spel 2 canvas"></canvas>
 
       <div class="miniPoster">
-        <div class="txt">⚠️ Spel 2: <b>Tel de blokjes</b>. De tekening is bewust misleidend.</div>
         <img src="spel2.jpg" alt="Spel 2 mini">
       </div>
 
@@ -517,11 +516,11 @@ function generateG2Levels(n=5){
 
       if(m === s) continue; // nooit gelijkheid
 
-      if(wantValid){
-        if(m <= s-1) { out.push({a,b,c}); break; }
-      }else{
-        if(m >= s+1) { out.push({a,b,c}); break; }
-      }
+      if (wantValid) {
+  if (m < s) { out.push({a,b,c}); break; }   // strikt kleiner
+} else {
+  if (m > s) { out.push({a,b,c}); break; }   // strikt groter
+}
     }
   }
   return out;
