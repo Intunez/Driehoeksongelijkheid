@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Driehoeksongelijkheid</title>
+
   <style>
     :root{
       --bg:#f6fbff;
@@ -15,7 +16,17 @@
       --bad:#e53935;
       --shadow: 0 10px 30px rgba(10,30,60,.10);
       --radius: 18px;
+
+      /* kleuren per zijde */
+      --colA: rgba(255,107,107,0.95);
+      --colB: rgba(77,171,247,0.95);
+      --colC: rgba(105,219,124,0.95);
+
+      --colA_text:#c92a2a;
+      --colB_text:#1864ab;
+      --colC_text:#2b8a3e;
     }
+
     *{ box-sizing:border-box; }
     body{
       margin:0;
@@ -141,29 +152,30 @@
 
     .mcq{ display:grid; gap:10px; margin-top: 10px; }
     .choiceRow{ display:flex; gap:10px; flex-wrap:wrap; }
+
+    /* ✅ kleuren van letters = kleuren van zijden */
     .choice{
       flex: 1 1 90px;
       background:#fff;
       border:1px solid #e6eef7;
-      color:#123;
       font-weight: 1000;
       padding: 12px;
       border-radius: 14px;
       text-align:center;
     }
-    .choice.a{ border-color: rgba(255,107,107,.55); }
-    .choice.b{ border-color: rgba(77,171,247,.55); }
-    .choice.c{ border-color: rgba(105,219,124,.55); }
+    .choice.a{ border-color: color-mix(in oklab, var(--colA) 55%, white); color: var(--colA_text); }
+    .choice.b{ border-color: color-mix(in oklab, var(--colB) 55%, white); color: var(--colB_text); }
+    .choice.c{ border-color: color-mix(in oklab, var(--colC) 55%, white); color: var(--colC_text); }
 
     .choice.correct{
       background: rgba(31,157,85,.10);
       border-color: rgba(31,157,85,.35);
-      color:#0b4f2a;
+      color:#0b4f2a !important;
     }
     .choice.wrong{
       background: rgba(229,57,53,.08);
       border-color: rgba(229,57,53,.35);
-      color:#7a0b0b;
+      color:#7a0b0b !important;
     }
 
     .small{ color: var(--muted); font-weight: 750; font-size: 13px; line-height: 1.25; }
@@ -180,14 +192,7 @@
     .result.good{ color: var(--good); }
     .result.bad{ color: var(--bad); }
 
-    /* intro / uitleg */
-    .hero{
-      display:grid;
-      gap:16px;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 10px 18px 30px;
-    }
+    .hero{ display:grid; gap:16px; max-width: 1100px; margin: 0 auto; padding: 10px 18px 30px; }
     .heroGrid{ display:grid; gap:16px; }
     @media (min-width: 980px){
       .heroGrid{ grid-template-columns: 1.4fr .6fr; align-items:start; }
@@ -201,7 +206,6 @@
       background:#fff;
     }
 
-    /* mini afbeelding in spel */
     .miniPoster{
       display:flex;
       align-items:center;
@@ -229,7 +233,6 @@
       line-height: 1.25;
     }
 
-    /* confetti overlay */
     #confetti{
       position: fixed;
       inset: 0;
@@ -270,8 +273,8 @@
         <div>
           <div class="hint">
             Klik straks op de muzieknoten bij de hoeken.<br/>
-            <b>Laagste toon</b> = <b>grootste hoek</b>.<br/>
-            De <b>langste zijde</b> ligt <b>tegenover</b> die hoek.
+            <b>Laagste toon</b> = <b>langste zijde</b> (tegenover die noot).<br/>
+            <b>Let op:</b> de tekening is bewust misleidend → je hebt het geluid nodig.
           </div>
           <button id="startGame1" class="btn" type="button" style="width:100%; margin-top:12px;">
             Start Spel 1 →
@@ -334,7 +337,7 @@
       </div>
 
       <div class="hint" id="hint1">
-        Klik op de <b>muzieknoten bij de hoeken</b>. Zoek de <b>laagste toon</b> → dat is de <b>grootste hoek</b>.
+        Klik op de <b>nootjes</b>. <b>Laagste toon</b> = <b>langste zijde</b> (tegenover die noot). De tekening is misleidend.
       </div>
     </div>
 
@@ -375,18 +378,18 @@
       <canvas id="cv2" width="1200" height="640" aria-label="Spel 2 canvas"></canvas>
 
       <div class="miniPoster">
-        <div class="txt">⚠️ Spel 2: <b>Tel de blokjes</b>. De tekening toont altijd een driehoek, ook als de verhoudingen <b>niet kloppen</b>.</div>
+        <div class="txt">⚠️ Spel 2: <b>Tel de blokjes</b>. De tekening is bewust misleidend.</div>
         <img src="spel2.jpg" alt="Spel 2 mini">
       </div>
 
       <div class="warning">
-        ⚠️ Let op: de tekening toont <b>altijd</b> een driehoek (ook als de verhoudingen niet kloppen).
-        <b>Baseer je dus enkel op de blokjes</b> voor de verhoudingen.
+        ⚠️ Let op: de tekening is <b>bewust misleidend</b>.
+        <b>Gebruik het geluid</b> voor de langste zijde en de <b>blokjes</b> voor de regel.
       </div>
 
       <div class="hint" id="hint2">
-        Stap 1: kies de <b>langste zijde</b> (via laagste toon / grootste hoek).<br/>
-        Stap 2: beslis of de <b>verhoudingen</b> kloppen adhv de <b>blokjes</b> (niet met de tekening).
+        Stap 1: klik op de nootjes → <b>laagste toon = langste zijde</b>.<br/>
+        Stap 2: check regel met blokjes: <b>langste &lt; som andere twee</b>.
       </div>
     </div>
 
@@ -406,7 +409,7 @@
           <button class="choice c" data-pick2="c" type="button">c</button>
         </div>
 
-        <div class="small"><b>Stap 2:</b> Klopt de driehoeksongelijkheid? (langste < som andere twee)</div>
+        <div class="small"><b>Stap 2:</b> Klopt de driehoeksongelijkheid? (langste &lt; som andere twee)</div>
         <div class="choiceRow" id="choicesRule">
           <button class="choice" data-rule="yes" type="button" disabled>Klopt ✅</button>
           <button class="choice" data-rule="no"  type="button" disabled>Klopt niet ❌</button>
@@ -450,26 +453,18 @@
 
 <script>
 /* =========================
-   LEVELS (worden geschud bij restart)
+   INSTELLINGEN
 ========================= */
-let GAME1_LEVELS = [
-  {a:12, b:9,  c:7},
-  {a:5,  b:11, c:8},
-  {a:6,  b:8,  c:13},
-  {a:14, b:9,  c:12},
-  {a:10, b:16, c:9}
-];
-
-let GAME2_LEVELS = [
-  {a:9,  b:4,  c:6},
-  {a:8,  b:3,  c:5},
-  {a:4,  b:10, c:7},
-  {a:2,  b:9,  c:6},
-  {a:6,  b:4,  c:11}
-];
-
 const TOTAL_MAX = 15;       // 5 + 10
 const CONFETTI_FROM = 12;   // confetti vanaf 12/15 (~80%)
+
+const COL_A = getComputedStyle(document.documentElement).getPropertyValue("--colA").trim();
+const COL_B = getComputedStyle(document.documentElement).getPropertyValue("--colB").trim();
+const COL_C = getComputedStyle(document.documentElement).getPropertyValue("--colC").trim();
+
+const BLOCK_COL_A = "rgba(255,107,107,0.92)";
+const BLOCK_COL_B = "rgba(77,171,247,0.92)";
+const BLOCK_COL_C = "rgba(105,219,124,0.92)";
 
 /* =========================
    SHUFFLE
@@ -483,8 +478,67 @@ function shuffleInPlace(arr){
 }
 
 /* =========================
-   SCORE + FIRST-TRY LOGICA
-   (als je één fout maakt in een onderdeel => dat punt is weg)
+   LEVEL GENERATOR
+   - NOOIT gelijkheid: max != som andere twee
+   - Game1: alle lengtes verschillend (audio nuttig)
+   - Game2: mix van "klopt" en "klopt niet"
+========================= */
+function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function generateG1Levels(n=5){
+  const out = [];
+  while(out.length < n){
+    const a = randInt(6, 16);
+    const b = randInt(6, 16);
+    const c = randInt(6, 16);
+    if(a===b || b===c || a===c) continue;           // audio verschil
+    // we laten het hier best "kloppen" (game1 draait om langste zijde via geluid)
+    // maar het hoeft niet perfect; toch liever wel:
+    const m = Math.max(a,b,c);
+    const s = a+b+c-m;
+    if(m >= s) continue;
+    out.push({a,b,c});
+  }
+  return out;
+}
+
+function generateG2Levels(n=5){
+  const out = [];
+  for(let i=0;i<n;i++){
+    const wantValid = (i % 2 === 0); // afwisselend: geldig/ongeldig
+    let tries = 0;
+    while(tries++ < 2000){
+      const a = randInt(2, 12);
+      const b = randInt(2, 12);
+      const c = randInt(2, 12);
+      if(a===b || b===c || a===c) continue; // audio verschil
+
+      const m = Math.max(a,b,c);
+      const s = a+b+c-m;
+
+      // ✅ vermijd gelijkheid ALTIJD
+      if(m === s) continue;
+
+      if(wantValid){
+        // geldig: m <= s-1
+        if(m <= s-1) { out.push({a,b,c}); break; }
+      }else{
+        // ongeldig: m >= s+1
+        if(m >= s+1) { out.push({a,b,c}); break; }
+      }
+    }
+  }
+  return out;
+}
+
+/* =========================
+   LEVELS (init)
+========================= */
+let GAME1_LEVELS = generateG1Levels(5);
+let GAME2_LEVELS = generateG2Levels(5);
+
+/* =========================
+   SCORE + FIRST-TRY
 ========================= */
 let g1Score = 0; // /5
 let g2Score = 0; // /10
@@ -576,12 +630,14 @@ function updateScores(){
 
 /* =========================
    AUDIO
+   ✅ laagste toon = langste zijde
 ========================= */
 let audioCtx = null;
 function ensureAudio(){
   if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   if(audioCtx.state === "suspended") audioCtx.resume();
 }
+
 function playTone(freq, startTime, duration=0.22){
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -596,6 +652,7 @@ function playTone(freq, startTime, duration=0.22){
   osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
   osc.start(startTime); osc.stop(startTime + duration + 0.02);
 }
+
 function playGoodChord(){
   const t0 = audioCtx.currentTime + 0.02;
   playTone(330, t0, 0.25);
@@ -608,13 +665,21 @@ function playBadSound(){
   playTone(430, t0 + 0.05, 0.20);
   playTone(452, t0 + 0.05, 0.20);
 }
-function angleToFreq(angleDeg){
-  const minA = 10, maxA = 170;
-  const a = Math.max(minA, Math.min(maxA, angleDeg));
-  const t = (a - minA) / (maxA - minA);
-  const high = 880;
-  const low  = 220;
+
+function freqFromLength(len, minLen, maxLen){
+  // grotere lengte => lagere toon
+  if(maxLen === minLen) return 440;
+  const t = (len - minLen) / (maxLen - minLen); // klein->0, groot->1
+  const high = 880, low = 220;
   return high + (low - high) * t;
+}
+
+function playToneForOppositeSide(sideLen, all){
+  ensureAudio();
+  const minLen = Math.min(...all);
+  const maxLen = Math.max(...all);
+  const f = freqFromLength(sideLen, minLen, maxLen);
+  playTone(f, audioCtx.currentTime + 0.02, 0.24);
 }
 
 /* =========================
@@ -627,37 +692,19 @@ function longestSide(a,b,c){
   const m = Math.max(a,b,c);
   return (m===a) ? "a" : (m===b ? "b" : "c");
 }
-function computeAnglesFromSides(a,b,c){
-  function clamp(x){ return Math.max(-1, Math.min(1, x)); }
-  const A = Math.acos(clamp((b*b + c*c - a*a) / (2*b*c))) * 180/Math.PI;
-  const B = Math.acos(clamp((a*a + c*c - b*b) / (2*a*c))) * 180/Math.PI;
-  const C = 180 - A - B;
-  return {A,B,C};
-}
 
-/* ✅ FIX: ook als verhoudingen niet kloppen => toch een "echte" teken-driehoek */
-function makeDrawableSides(a,b,c){
-  if(ruleHolds(a,b,c)) return {da:a, db:b, dc:c};
-
-  const sides = [
-    {k:"a", v:a},
-    {k:"b", v:b},
-    {k:"c", v:c},
-  ].sort((x,y)=>y.v-x.v);
-
-  const maxK = sides[0].k;
-  const s1 = sides[1].v;
-  const s2 = sides[2].v;
-
-  // duidelijke marge zodat het geen lijn wordt
-  const maxDrawable = Math.max(1, 0.92 * (s1 + s2));
-
-  const out = {da:a, db:b, dc:c};
-  if(maxK === "a") out.da = maxDrawable;
-  if(maxK === "b") out.db = maxDrawable;
-  if(maxK === "c") out.dc = maxDrawable;
-
-  return out;
+/* =========================
+   VISUELE DRIEHOEK (misleidend)
+   -> altijd bijna gelijkbenig / neutraal, zodat je geluid nodig hebt
+========================= */
+function getVisualTriangleSides(){
+  // altijd geldige driehoek, dicht bij elkaar
+  const base = randInt(90, 110);
+  const da = base + randInt(-8, 8);
+  const db = base + randInt(-8, 8);
+  const dc = base + randInt(-8, 8);
+  // zorg triangle inequality (in praktijk altijd ok hier)
+  return {da, db, dc};
 }
 
 /* =========================
@@ -668,6 +715,7 @@ function lengthsToPixels(a,b,c, maxPx){
   const scale = maxPx / maxSide;
   return {a:a*scale, b:b*scale, c:c*scale};
 }
+
 function computeTrianglePoints(drawA, drawB, drawC, W, H, opts={}){
   const maxPx = opts.maxPx ?? 520;
   const originX = opts.originX ?? (W*0.18);
@@ -686,7 +734,6 @@ function computeTrianglePoints(drawA, drawB, drawC, W, H, opts={}){
   return {A,B,C, px};
 }
 
-/* ✅ FIX: driehoek altijd volledig in beeld */
 function fitTriangleToCanvas(tri, W, H, pad=28){
   const pts = [tri.A, tri.B, tri.C];
   const minX = Math.min(...pts.map(p=>p.x));
@@ -719,6 +766,7 @@ function drawGrid(ctx, W, H){
   }
   ctx.restore();
 }
+
 function drawStick(ctx, p, q, thick, color){
   ctx.save();
   ctx.lineCap="round";
@@ -730,6 +778,7 @@ function drawStick(ctx, p, q, thick, color){
   ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.stroke();
   ctx.restore();
 }
+
 function drawText(ctx, x, y, text, size=16, weight=900, alpha=1){
   ctx.save();
   ctx.globalAlpha = alpha;
@@ -738,6 +787,7 @@ function drawText(ctx, x, y, text, size=16, weight=900, alpha=1){
   ctx.fillText(text, x, y);
   ctx.restore();
 }
+
 function drawNote(ctx, x, y, active=false){
   ctx.save();
   ctx.beginPath();
@@ -752,7 +802,9 @@ function drawNote(ctx, x, y, active=false){
   ctx.fillText("♪", x-7, y+8);
   ctx.restore();
 }
+
 function dist2(x1,y1,x2,y2){ const dx=x1-x2, dy=y1-y2; return dx*dx+dy*dy; }
+
 function computeNotePositions(tri){
   const {A,B,C} = tri;
   const off = (pt, dx, dy)=>({x:pt.x+dx, y:pt.y+dy, r:20});
@@ -772,11 +824,14 @@ if(!CanvasRenderingContext2D.prototype.roundRect){
     return this;
   };
 }
-function drawBlocksRow(ctx, x, y, value, color, label){
+
+/* ✅ Blokjes bij een positie (x,y) */
+function drawBlocksRowAt(ctx, x, y, value, color, label){
   const size = 14, gap = 4;
-  const perRow = 12;
+  const perRow = 10;
   const rows = Math.max(1, Math.ceil(value / perRow));
 
+  // label
   ctx.save();
   ctx.font = "1000 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
   ctx.fillStyle = "rgba(18,34,51,0.85)";
@@ -799,6 +854,7 @@ function drawBlocksRow(ctx, x, y, value, color, label){
   }
   ctx.restore();
 }
+
 function clearMCQ(container, attr){
   container.querySelectorAll(`button[${attr}]`).forEach(b=> b.classList.remove("correct","wrong"));
 }
@@ -809,6 +865,40 @@ function showResult(el, ok){
 function hideResult(el){
   el.className = "result";
   el.textContent = "";
+}
+
+/* =========================
+   BLOKJES-POSITIE BIJ ZIJDEN
+========================= */
+function centroid(tri){
+  return {
+    x:(tri.A.x+tri.B.x+tri.C.x)/3,
+    y:(tri.A.y+tri.B.y+tri.C.y)/3
+  };
+}
+function midpoint(p,q){ return {x:(p.x+q.x)/2, y:(p.y+q.y)/2}; }
+
+function outwardOffsetPoint(p,q, ctr, dist=34){
+  const m = midpoint(p,q);
+  // perpendicular
+  let nx = -(q.y - p.y);
+  let ny = (q.x - p.x);
+  const len = Math.hypot(nx,ny) || 1;
+  nx/=len; ny/=len;
+
+  // kies richting "van het centrum weg"
+  const testX = m.x + nx*dist;
+  const testY = m.y + ny*dist;
+  const dTest = (testX-ctr.x)**2 + (testY-ctr.y)**2;
+  const dMid  = (m.x-ctr.x)**2 + (m.y-ctr.y)**2;
+  if(dTest < dMid){ nx*=-1; ny*=-1; }
+
+  return { x: m.x + nx*dist, y: m.y + ny*dist };
+}
+
+function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+function clampPointToCanvas(pt, W, H, pad=18){
+  return { x: clamp(pt.x, pad, W-pad-180), y: clamp(pt.y, pad+20, H-pad-70) };
 }
 
 /* =========================
@@ -838,16 +928,19 @@ function drawGame1(){
   drawGrid(ctx1,W,H);
 
   p1Level.querySelector("span").textContent = `Spel 1 • Level ${g1Index+1}/5`;
-  drawText(ctx1, 18, 38, "Spel 1: klik op de nootjes bij de hoeken", 24, 1000, 1);
+  drawText(ctx1, 18, 38, "Spel 1: klik op nootjes — laagste toon = langste zijde", 24, 1000, 1);
 
-  let tri = computeTrianglePoints(a,b,c, W, H, {maxPx: 640, originX: W*0.16, originY: H*0.78});
+  // ✅ misleidende (bijna gelijke) driehoek
+  const vis = getVisualTriangleSides();
+  let tri = computeTrianglePoints(vis.da, vis.db, vis.dc, W, H, {maxPx: 690, originX: W*0.18, originY: H*0.78});
   tri = fitTriangleToCanvas(tri, W, H, 28);
 
   const notes = computeNotePositions(tri);
 
-  drawStick(ctx1, tri.B, tri.C, 14, "rgba(255,107,107,0.95)"); // a
-  drawStick(ctx1, tri.A, tri.C, 14, "rgba(77,171,247,0.95)");  // b
-  drawStick(ctx1, tri.A, tri.B, 14, "rgba(105,219,124,0.95)"); // c
+  // a = BC, b = AC, c = AB
+  drawStick(ctx1, tri.B, tri.C, 14, COL_A);
+  drawStick(ctx1, tri.A, tri.C, 14, COL_B);
+  drawStick(ctx1, tri.A, tri.B, 14, COL_C);
 
   drawText(ctx1, (tri.B.x+tri.C.x)/2 - 8, (tri.B.y+tri.C.y)/2 - 12, "a", 20, 1000, .9);
   drawText(ctx1, (tri.A.x+tri.C.x)/2 - 8, (tri.A.y+tri.C.y)/2 - 12, "b", 20, 1000, .9);
@@ -864,18 +957,18 @@ function drawGame1(){
   ctx1.save();
   ctx1.font = "900 15px system-ui, -apple-system, Segoe UI, Roboto, Arial";
   ctx1.fillStyle = "rgba(18,34,51,0.72)";
-  ctx1.fillText("Grootste hoek → laagste toon. Langste zijde ligt tegenover die hoek.", 18, H-18);
+  ctx1.fillText("Tip: de tekening is misleidend — gebruik het geluid.", 18, H-18);
   ctx1.restore();
 
-  g1DrawData = {tri, notes, angles: computeAnglesFromSides(a,b,c)};
+  g1DrawData = {tri, notes};
 }
 
-function playAngleToneGame1(vertex){
-  ensureAudio();
+function playToneAtVertexGame1(vertex){
   const {a,b,c} = currentG1();
-  const ang = computeAnglesFromSides(a,b,c);
-  const val = (vertex==="A") ? ang.A : (vertex==="B" ? ang.B : ang.C);
-  playTone(angleToFreq(val), audioCtx.currentTime + 0.02, 0.22);
+  const all = [a,b,c];
+  // vertex A -> opposite side a; B -> b; C -> c
+  const sideLen = (vertex==="A") ? a : (vertex==="B" ? b : c);
+  playToneForOppositeSide(sideLen, all);
   g1LastPlayed = vertex;
   drawGame1();
 }
@@ -903,19 +996,15 @@ function handleG1Pick(pick){
     btn.classList.add("correct");
     showResult(p1Result, true);
 
-    // punt enkel als first-try
     if(!g1LevelPointGiven[g1Index]){
-      if(!g1HadWrongAttempt[g1Index]){
-        g1Score++;
-      }
+      if(!g1HadWrongAttempt[g1Index]) g1Score++;
       g1LevelPointGiven[g1Index] = true;
       updateScores();
     }
 
     hint1.className = "hint good";
     hint1.innerHTML =
-      `✅ Juist! Tegenover de grootste hoek ligt de langste zijde: <b>${correct}</b>.<br/>` +
-      `${g1LevelPointStatusText()}`;
+      `✅ Juist! Langste zijde is <b>${correct}</b>.<br/>${g1LevelPointStatusText()}`;
 
     g1Solved = true;
     next1.disabled = false;
@@ -928,13 +1017,11 @@ function handleG1Pick(pick){
     btn.classList.add("wrong");
     showResult(p1Result, false);
 
-    // vanaf nu is punt verloren voor dit level
     g1HadWrongAttempt[g1Index] = true;
 
     hint1.className = "hint bad";
     hint1.innerHTML =
-      `❌ Nog niet. Klik opnieuw op de nootjes en zoek de <b>laagste toon</b>.<br/>` +
-      `${g1LevelPointStatusText()}`;
+      `❌ Nog niet. Klik opnieuw op de nootjes: <b>laagste toon = langste zijde</b>.<br/>${g1LevelPointStatusText()}`;
 
     ensureAudio(); playBadSound();
   }
@@ -951,8 +1038,7 @@ function nextG1(){
     hideResult(p1Result);
 
     hint1.className = "hint";
-    hint1.innerHTML =
-      `Nieuw level! Klik op de nootjes en vind de langste zijde.<br/>${g1LevelPointStatusText()}`;
+    hint1.innerHTML = `Nieuw level! Gebruik het geluid.<br/>${g1LevelPointStatusText()}`;
     drawGame1();
   }else{
     hint1.className = "hint good";
@@ -967,10 +1053,11 @@ cv1.addEventListener("click", (e)=>{
   const y = (e.clientY - rect.top) * (cv1.height / rect.height);
   const n = g1DrawData.notes;
   const hit = (key)=> dist2(x,y,n[key].x,n[key].y) <= (n[key].r*n[key].r);
-  if(hit("A")) return playAngleToneGame1("A");
-  if(hit("B")) return playAngleToneGame1("B");
-  if(hit("C")) return playAngleToneGame1("C");
+  if(hit("A")) return playToneAtVertexGame1("A");
+  if(hit("B")) return playToneAtVertexGame1("B");
+  if(hit("C")) return playToneAtVertexGame1("C");
 });
+
 choices1.addEventListener("click", (e)=>{
   const btn = e.target.closest("button[data-pick]");
   if(!btn) return;
@@ -1005,18 +1092,19 @@ function drawGame2(){
   drawGrid(ctx2,W,H);
 
   p2Level.querySelector("span").textContent = `Spel 2 • Level ${g2Index+1}/5`;
-  drawText(ctx2, 18, 38, "Spel 2: luister + blokjes → klopt de driehoeksongelijkheid?", 24, 1000, 1);
+  drawText(ctx2, 18, 38, "Spel 2: geluid + blokjes — tekening misleidt!", 24, 1000, 1);
 
-  const {da,db,dc} = makeDrawableSides(a,b,c);
-
-  let tri = computeTrianglePoints(da,db,dc, W, H, {maxPx: 760, originX: W*0.12, originY: H*0.72});
+  // ✅ misleidende (bijna gelijke) driehoek
+  const vis = getVisualTriangleSides();
+  let tri = computeTrianglePoints(vis.da, vis.db, vis.dc, W, H, {maxPx: 780, originX: W*0.12, originY: H*0.70});
   tri = fitTriangleToCanvas(tri, W, H, 28);
 
   const notes = computeNotePositions(tri);
 
-  drawStick(ctx2, tri.B, tri.C, 14, "rgba(255,107,107,0.95)"); // a
-  drawStick(ctx2, tri.A, tri.C, 14, "rgba(77,171,247,0.95)");  // b
-  drawStick(ctx2, tri.A, tri.B, 14, "rgba(105,219,124,.95)");  // c
+  // a=BC b=AC c=AB
+  drawStick(ctx2, tri.B, tri.C, 14, COL_A);
+  drawStick(ctx2, tri.A, tri.C, 14, COL_B);
+  drawStick(ctx2, tri.A, tri.B, 14, COL_C);
 
   drawText(ctx2, (tri.B.x+tri.C.x)/2 - 8, (tri.B.y+tri.C.y)/2 - 12, "a", 20, 1000, .9);
   drawText(ctx2, (tri.A.x+tri.C.x)/2 - 8, (tri.A.y+tri.C.y)/2 - 12, "b", 20, 1000, .9);
@@ -1030,33 +1118,38 @@ function drawGame2(){
   drawNote(ctx2, notes.B.x, notes.B.y, g2LastPlayed==="B");
   drawNote(ctx2, notes.C.x, notes.C.y, g2LastPlayed==="C");
 
-  const pad = 18;
-  const baseY = H - 150;
-  const colW = (W - pad*2);
-  const xA = pad;
-  const xB = pad + colW/3;
-  const xC = pad + 2*colW/3;
+  // ✅ blokjes bij de zijden (niet onderaan)
+  const ctr = centroid(tri);
 
-  drawBlocksRow(ctx2, xA, baseY, a, "rgba(255,107,107,0.92)", "a");
-  drawBlocksRow(ctx2, xB, baseY, b, "rgba(77,171,247,0.92)", "b");
-  drawBlocksRow(ctx2, xC, baseY, c, "rgba(105,219,124,0.92)", "c");
+  // a bij zijde BC
+  let posA = outwardOffsetPoint(tri.B, tri.C, ctr, 42);
+  posA = clampPointToCanvas(posA, W, H, 18);
+  drawBlocksRowAt(ctx2, posA.x, posA.y, a, BLOCK_COL_A, "a");
+
+  // b bij zijde AC
+  let posB = outwardOffsetPoint(tri.A, tri.C, ctr, 42);
+  posB = clampPointToCanvas(posB, W, H, 18);
+  drawBlocksRowAt(ctx2, posB.x, posB.y, b, BLOCK_COL_B, "b");
+
+  // c bij zijde AB
+  let posC = outwardOffsetPoint(tri.A, tri.B, ctr, 42);
+  posC = clampPointToCanvas(posC, W, H, 18);
+  drawBlocksRowAt(ctx2, posC.x, posC.y, c, BLOCK_COL_C, "c");
 
   ctx2.save();
   ctx2.font = "900 15px system-ui, -apple-system, Segoe UI, Roboto, Arial";
   ctx2.fillStyle = "rgba(18,34,51,0.72)";
-  ctx2.fillText("Regel: langste zijde moet kleiner zijn dan de som van de andere twee. (Kijk naar de blokjes.)", 18, H-18);
+  ctx2.fillText("Regel: langste zijde moet kleiner zijn dan de som van de andere twee. (Blokjes!)", 18, H-18);
   ctx2.restore();
 
   g2DrawData = {tri, notes};
 }
 
-function playAngleToneGame2(vertex){
-  ensureAudio();
+function playToneAtVertexGame2(vertex){
   const {a,b,c} = currentG2();
-  const {da,db,dc} = makeDrawableSides(a,b,c);
-  const ang = computeAnglesFromSides(da,db,dc);
-  const val = (vertex==="A") ? ang.A : (vertex==="B" ? ang.B : ang.C);
-  playTone(angleToFreq(val), audioCtx.currentTime + 0.02, 0.22);
+  const all = [a,b,c];
+  const sideLen = (vertex==="A") ? a : (vertex==="B" ? b : c);
+  playToneForOppositeSide(sideLen, all);
   g2LastPlayed = vertex;
   drawGame2();
 }
@@ -1068,9 +1161,9 @@ cv2.addEventListener("click", (e)=>{
   const y = (e.clientY - rect.top) * (cv2.height / rect.height);
   const n = computeNotePositions(g2DrawData.tri);
   const hit = (key)=> dist2(x,y,n[key].x,n[key].y) <= (n[key].r*n[key].r);
-  if(hit("A")) return playAngleToneGame2("A");
-  if(hit("B")) return playAngleToneGame2("B");
-  if(hit("C")) return playAngleToneGame2("C");
+  if(hit("A")) return playToneAtVertexGame2("A");
+  if(hit("B")) return playToneAtVertexGame2("B");
+  if(hit("C")) return playToneAtVertexGame2("C");
 });
 
 function g2StepPointStatusText(){
@@ -1128,14 +1221,13 @@ function handleG2PickLongest(pick){
 
     hint2b.className = "hint";
     hint2b.innerHTML =
-      `Goed! Nu: klopt de regel? (langste < som andere twee) — kijk enkel naar de blokjes.<br/>${g2StepPointStatusText()}`;
+      `Goed! Nu stap 2: check de regel met blokjes.<br/>${g2StepPointStatusText()}`;
 
     ensureAudio(); playGoodChord();
   }else{
     btn.classList.add("wrong");
     g2LongestSolved = false;
 
-    // punt voor stap 1 is nu weg
     g2LongestHadWrongAttempt[g2Index] = true;
 
     choicesRule.querySelectorAll("button").forEach(b=> b.disabled = true);
@@ -1144,7 +1236,7 @@ function handleG2PickLongest(pick){
 
     hint2b.className = "hint bad";
     hint2b.innerHTML =
-      `❌ Niet juist. Zoek de laagste toon (grootste hoek) en neem de overstaande zijde.<br/>${g2StepPointStatusText()}`;
+      `❌ Niet juist. Klik opnieuw op de nootjes: <b>laagste toon = langste zijde</b>.<br/>${g2StepPointStatusText()}`;
 
     ensureAudio(); playBadSound();
   }
@@ -1182,8 +1274,8 @@ function handleG2PickRule(ans){
     hint2b.className = "hint good";
     hint2b.innerHTML =
       (correct
-        ? `✅ Klopt! ${m} < ${sumOthers}. (Je baseerde je op de blokjes 👍)`
-        : `✅ Juist: het klopt <b>niet</b>. ${m} is niet kleiner dan ${sumOthers}. (Kijk naar de blokjes 👍)`)
+        ? `✅ Juist: het klopt! ${m} is kleiner dan ${sumOthers}.`
+        : `✅ Juist: het klopt niet. ${m} is niet kleiner dan ${sumOthers}.`)
       + `<br/>${g2StepPointStatusText()}`;
 
     ensureAudio(); playGoodChord();
@@ -1192,14 +1284,13 @@ function handleG2PickRule(ans){
     g2RuleSolved = false;
     next2.disabled = true;
 
-    // punt voor stap 2 is nu weg
     g2RuleHadWrongAttempt[g2Index] = true;
 
     showResult(p2Result, false);
 
     hint2b.className = "hint bad";
     hint2b.innerHTML =
-      `❌ Niet juist. Vergelijk de langste zijde (${m}) met de som van de andere twee (${sumOthers}). (Enkel blokjes!)<br/>${g2StepPointStatusText()}`;
+      `❌ Niet juist. Vergelijk ${m} met ${sumOthers}. (Blokjes!)<br/>${g2StepPointStatusText()}`;
 
     ensureAudio(); playBadSound();
   }
@@ -1291,18 +1382,18 @@ document.getElementById("backToIntro1").addEventListener("click", ()=>{ pendingR
 document.getElementById("goIntro1End").addEventListener("click", ()=>{ pendingReturn=null; updateResumeButtons(); showSingle(intro1); });
 
 document.getElementById("restartAll").addEventListener("click", ()=>{
-  // 1) shuffle vragenvolgorde
+  // nieuwe levels + shuffle
+  GAME1_LEVELS = generateG1Levels(5);
+  GAME2_LEVELS = generateG2Levels(5);
   shuffleInPlace(GAME1_LEVELS);
   shuffleInPlace(GAME2_LEVELS);
 
-  // 2) reset scores + index + flags
   g1Score = 0; g2Score = 0;
   g1Index = 0; g2Index = 0;
 
   initScoreState();
   updateScores();
 
-  // 3) reset UI states
   resetGame1UI();
   resetG2Answers();
   drawGame1();
@@ -1323,13 +1414,12 @@ function resetGame1UI(){
   g1Solved = false;
   g1LastPlayed = null;
   hint1.className = "hint";
-  hint1.innerHTML =
-    `Klik op de nootjes bij de hoeken. Grootste hoek → laagste toon. Kies de langste zijde.<br/>${g1LevelPointStatusText()}`;
+  hint1.innerHTML = `Klik op de nootjes: <b>laagste toon = langste zijde</b>.<br/>Punt dit level: <b>1/1</b> (zolang je geen fout maakt)`;
   hideResult(p1Result);
 }
 
 /* =========================
-   CONFETTI (simpel, neutraal)
+   CONFETTI
 ========================= */
 const conf = document.getElementById("confetti");
 const cctx = conf.getContext("2d");
