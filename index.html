@@ -131,17 +131,15 @@
       font-size: 13px;
     }
 
+    /* Canvas: breedte 100% en hoogte via JS (responsive) */
     canvas{
       width:100%;
-      height: 640px;
+      height: 640px; /* fallback */
       display:block;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
       border: 1px solid #eaf2fb;
-    }
-    @media (max-width: 700px){
-      canvas{ height: 520px; }
     }
 
     .panel-title{
@@ -313,7 +311,7 @@
         <button id="goIntro2Top" class="btn-ghost" type="button">Ga naar Spel 2 uitleg →</button>
       </div>
 
-      <canvas id="cv1" width="1200" height="640" aria-label="Spel 1 canvas"></canvas>
+      <canvas id="cv1" aria-label="Spel 1 canvas"></canvas>
 
       <div class="miniPoster">
         <img src="spel1.jpg" alt="Spel 1 mini">
@@ -357,7 +355,7 @@
         <button id="backToIntro2" class="btn-ghost" type="button">← Terug naar uitleg</button>
       </div>
 
-      <canvas id="cv2" width="1200" height="640" aria-label="Spel 2 canvas"></canvas>
+      <canvas id="cv2" aria-label="Spel 2 canvas"></canvas>
 
       <div class="miniPoster">
         <div class="txt">⚠️ Spel 2: <b>Tel de blokjes</b>. De tekening is bewust misleidend.</div>
@@ -446,6 +444,42 @@ const BLOCK_COL_B = "rgba(77,171,247,0.92)";
 const BLOCK_COL_C = "rgba(105,219,124,0.92)";
 
 /* =========================
+   RESPONSIVE CANVAS (Scherp op elk scherm)
+   - we tekenen in CSS-pixels (ctx.setTransform(dpr,...))
+========================= */
+function canvasCssHeight(){
+  // iets minder hoog op kleine schermen, maar groot genoeg om leesbaar te blijven
+  return (window.innerWidth <= 700) ? 560 : 660;
+}
+
+function resizeCanvasToDisplaySize(canvas, ctx, cssH){
+  const dpr = window.devicePixelRatio || 1;
+  canvas.style.height = cssH + "px";
+
+  const rect = canvas.getBoundingClientRect();
+  const displayWidth  = Math.round(rect.width);
+  const displayHeight = Math.round(cssH);
+
+  const needResize =
+    canvas.width  !== Math.round(displayWidth * dpr) ||
+    canvas.height !== Math.round(displayHeight * dpr);
+
+  if(needResize){
+    canvas.width  = Math.round(displayWidth * dpr);
+    canvas.height = Math.round(displayHeight * dpr);
+
+    // teken-coördinaten in CSS-pixels
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  return needResize;
+}
+
+function canvasSizeCss(canvas, cssH){
+  const rect = canvas.getBoundingClientRect();
+  return { W: rect.width, H: cssH };
+}
+
+/* =========================
    HULP
 ========================= */
 function shuffleInPlace(arr){
@@ -489,7 +523,7 @@ function generateG2Levels(n=5){
       const m = Math.max(a,b,c);
       const s = a+b+c-m;
 
-      if(m === s) continue; // ✅ nooit gelijkheid
+      if(m === s) continue; // nooit gelijkheid
 
       if(wantValid){
         if(m <= s-1) { out.push({a,b,c}); break; }
@@ -505,8 +539,7 @@ let GAME1_LEVELS = generateG1Levels(5);
 let GAME2_LEVELS = generateG2Levels(5);
 
 /* =========================
-   ✅ VASTE VISUAL & VASTE PUNTEN PER LEVEL
-   -> NIETS verspringt, ook niet na terugkomen van uitleg
+   VASTE VISUAL PER LEVEL (misleiding blijft consistent)
 ========================= */
 const g1VisualCache = Array(GAME1_LEVELS.length).fill(null);
 const g2VisualCache = Array(GAME2_LEVELS.length).fill(null);
@@ -531,7 +564,7 @@ function getFixedVisualForGame2Level(i){
   return g2VisualCache[i];
 }
 
-// clone helper (geen reference-dingen)
+// clone helper (geen references)
 function cloneTri(t){
   return {
     A:{x:t.A.x, y:t.A.y},
@@ -732,6 +765,34 @@ function fitTriangleToCanvas(tri, W, H, pad=28){
 
   return tri;
 }
+
+// NIEUW: als hij nog te groot is -> schaal hem netjes naar binnen
+function scaleTriangleToFit(tri, W, H, pad=28){
+  const pts = [tri.A, tri.B, tri.C];
+  const minX = Math.min(...pts.map(p=>p.x));
+  const maxX = Math.max(...pts.map(p=>p.x));
+  const minY = Math.min(...pts.map(p=>p.y));
+  const maxY = Math.max(...pts.map(p=>p.y));
+
+  const width  = maxX - minX;
+  const height = maxY - minY;
+
+  const maxW = W - 2*pad;
+  const maxH = H - 2*pad;
+
+  const s = Math.min(1, maxW/width, maxH/height);
+  if(s >= 1) return tri;
+
+  const cx = (tri.A.x + tri.B.x + tri.C.x)/3;
+  const cy = (tri.A.y + tri.B.y + tri.C.y)/3;
+
+  for(const p of pts){
+    p.x = cx + (p.x - cx)*s;
+    p.y = cy + (p.y - cy)*s;
+  }
+  return tri;
+}
+
 function drawGrid(ctx, W, H){
   ctx.save();
   ctx.globalAlpha = 0.06;
@@ -823,6 +884,23 @@ function drawBlocksRowAt(ctx, x, y, value, color, label){
   }
   ctx.restore();
 }
+
+function drawBottomRule(ctx, W, H, text){
+  ctx.save();
+  const x = 14, y = H - 56, w = W - 28, h = 42;
+  ctx.fillStyle = "rgba(255,255,255,0.88)";
+  ctx.strokeStyle = "rgba(18,34,51,0.14)";
+  ctx.lineWidth = 1;
+  ctx.roundRect(x, y, w, h, 12);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(18,34,51,0.78)";
+  ctx.font = "900 16px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+  ctx.fillText(text, x + 14, y + 26);
+  ctx.restore();
+}
+
 function clearMCQ(container, attr){
   container.querySelectorAll(`button[${attr}]`).forEach(b=> b.classList.remove("correct","wrong"));
 }
@@ -836,37 +914,11 @@ function hideResult(el){
 }
 
 /* =========================
-   BLOKJES POSITIES
-========================= */
-function centroid(tri){
-  return { x:(tri.A.x+tri.B.x+tri.C.x)/3, y:(tri.A.y+tri.B.y+tri.C.y)/3 };
-}
-function midpoint(p,q){ return {x:(p.x+q.x)/2, y:(p.y+q.y)/2}; }
-function outwardOffsetPoint(p,q, ctr, dist=34){
-  const m = midpoint(p,q);
-  let nx = -(q.y - p.y);
-  let ny = (q.x - p.x);
-  const len = Math.hypot(nx,ny) || 1;
-  nx/=len; ny/=len;
-
-  const testX = m.x + nx*dist;
-  const testY = m.y + ny*dist;
-  const dTest = (testX-ctr.x)**2 + (testY-ctr.y)**2;
-  const dMid  = (m.x-ctr.x)**2 + (m.y-ctr.y)**2;
-  if(dTest < dMid){ nx*=-1; ny*=-1; }
-
-  return { x: m.x + nx*dist, y: m.y + ny*dist };
-}
-function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
-function clampPointToCanvas(pt, W, H, pad=18){
-  return { x: clamp(pt.x, pad, W-pad-180), y: clamp(pt.y, pad+20, H-pad-70) };
-}
-
-/* =========================
    SPEL 1
 ========================= */
 const cv1 = document.getElementById("cv1");
 const ctx1 = cv1.getContext("2d");
+
 const p1Level = document.getElementById("p1Level");
 const hint1 = document.getElementById("hint1");
 const choices1 = document.getElementById("choices1");
@@ -880,28 +932,36 @@ let g1DrawData = null;
 
 function currentG1(){ return GAME1_LEVELS[g1Index]; }
 
-function getOrBuildG1Tri(){
+function getOrBuildG1Tri(W, H){
   if(g1TriCache[g1Index]) return cloneTri(g1TriCache[g1Index]);
 
-  const W = ctx1.canvas.width, H = ctx1.canvas.height;
   const vis = getFixedVisualForGame1Level(g1Index);
 
-  let tri = computeTrianglePoints(vis.da, vis.db, vis.dc, W, H, {maxPx: 690, originX: W*0.18, originY: H*0.78});
-  tri = fitTriangleToCanvas(tri, W, H, 28);
+  let tri = computeTrianglePoints(vis.da, vis.db, vis.dc, W, H, {
+    maxPx: Math.min(720, W*0.78),
+    originX: W*0.14,
+    originY: H*0.80
+  });
+
+  tri = scaleTriangleToFit(tri, W, H, 30);
+  tri = fitTriangleToCanvas(tri, W, H, 30);
 
   g1TriCache[g1Index] = cloneTri(tri);
   return cloneTri(tri);
 }
 
 function drawGame1(){
-  const W = ctx1.canvas.width, H = ctx1.canvas.height;
+  const cssH = canvasCssHeight();
+  resizeCanvasToDisplaySize(cv1, ctx1, cssH);
+  const {W, H} = canvasSizeCss(cv1, cssH);
+
   ctx1.clearRect(0,0,W,H);
   drawGrid(ctx1,W,H);
 
   p1Level.querySelector("span").textContent = `Spel 1 • Level ${g1Index+1}/5`;
-  drawText(ctx1, 18, 38, "Spel 1: klik op nootjes — laagste toon = langste zijde", 24, 1000, 1);
+  drawText(ctx1, 18, 40, "Spel 1: klik op nootjes — laagste toon = langste zijde", 22, 1000, 1);
 
-  const tri = getOrBuildG1Tri();
+  const tri = getOrBuildG1Tri(W, H);
   const notes = computeNotePositions(tri);
 
   drawStick(ctx1, tri.B, tri.C, 14, COL_A); // a = BC
@@ -920,13 +980,9 @@ function drawGame1(){
   drawNote(ctx1, notes.B.x, notes.B.y, g1LastPlayed==="B");
   drawNote(ctx1, notes.C.x, notes.C.y, g1LastPlayed==="C");
 
-  ctx1.save();
-  ctx1.font = "900 15px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-  ctx1.fillStyle = "rgba(18,34,51,0.72)";
-  ctx1.fillText("Tip: tekening misleidt — gebruik het geluid.", 18, H-18);
-  ctx1.restore();
+  drawBottomRule(ctx1, W, H, "Tip: tekening misleidt — gebruik het geluid.");
 
-  g1DrawData = {tri, notes};
+  g1DrawData = {tri, notes, W, H};
 }
 
 function playToneAtVertexGame1(vertex){
@@ -1006,8 +1062,8 @@ function nextG1(){
 cv1.addEventListener("click", (e)=>{
   if(!g1DrawData) return;
   const rect = cv1.getBoundingClientRect();
-  const x = (e.clientX - rect.left) * (cv1.width / rect.width);
-  const y = (e.clientY - rect.top) * (cv1.height / rect.height);
+  const x = (e.clientX - rect.left);
+  const y = (e.clientY - rect.top);
   const n = g1DrawData.notes;
   const hit = (key)=> dist2(x,y,n[key].x,n[key].y) <= (n[key].r*n[key].r);
   if(hit("A")) return playToneAtVertexGame1("A");
@@ -1027,6 +1083,7 @@ next1.addEventListener("click", nextG1);
 ========================= */
 const cv2 = document.getElementById("cv2");
 const ctx2 = cv2.getContext("2d");
+
 const p2Level = document.getElementById("p2Level");
 const hint2b = document.getElementById("hint2b");
 const choices2 = document.getElementById("choices2");
@@ -1042,14 +1099,19 @@ let g2RuleSolved = false;
 
 function currentG2(){ return GAME2_LEVELS[g2Index]; }
 
-function getOrBuildG2Tri(){
+function getOrBuildG2Tri(W, H){
   if(g2TriCache[g2Index]) return cloneTri(g2TriCache[g2Index]);
 
-  const W = ctx2.canvas.width, H = ctx2.canvas.height;
   const vis = getFixedVisualForGame2Level(g2Index);
 
-  let tri = computeTrianglePoints(vis.da, vis.db, vis.dc, W, H, {maxPx: 780, originX: W*0.12, originY: H*0.70});
-  tri = fitTriangleToCanvas(tri, W, H, 28);
+  let tri = computeTrianglePoints(vis.da, vis.db, vis.dc, W, H, {
+    maxPx: Math.min(760, W*0.80),
+    originX: W*0.10,
+    originY: H*0.74
+  });
+
+  tri = scaleTriangleToFit(tri, W, H, 30);
+  tri = fitTriangleToCanvas(tri, W, H, 30);
 
   g2TriCache[g2Index] = cloneTri(tri);
   return cloneTri(tri);
@@ -1057,14 +1119,18 @@ function getOrBuildG2Tri(){
 
 function drawGame2(){
   const {a,b,c} = currentG2();
-  const W = ctx2.canvas.width, H = ctx2.canvas.height;
+
+  const cssH = canvasCssHeight();
+  resizeCanvasToDisplaySize(cv2, ctx2, cssH);
+  const {W, H} = canvasSizeCss(cv2, cssH);
+
   ctx2.clearRect(0,0,W,H);
   drawGrid(ctx2,W,H);
 
   p2Level.querySelector("span").textContent = `Spel 2 • Level ${g2Index+1}/5`;
-  drawText(ctx2, 18, 38, "Spel 2: langste zijde + driehoeksongelijkheid", 24, 1000, 1);
+  drawText(ctx2, 18, 40, "Spel 2: langste zijde + driehoeksongelijkheid", 22, 1000, 1);
 
-  const tri = getOrBuildG2Tri();
+  const tri = getOrBuildG2Tri(W, H);
   const notes = computeNotePositions(tri);
 
   drawStick(ctx2, tri.B, tri.C, 14, COL_A); // a
@@ -1083,24 +1149,20 @@ function drawGame2(){
   drawNote(ctx2, notes.B.x, notes.B.y, g2LastPlayed==="B");
   drawNote(ctx2, notes.C.x, notes.C.y, g2LastPlayed==="C");
 
-  const ctr = centroid(tri);
+  // ✅ FIX: blokjes op vaste plekken (altijd zichtbaar, niet te klein, niet over lijnen)
+  const pad = 18;
+  const blockRowW = 10*(14+4); // perRow=10
+  const posA = { x: pad,                 y: Math.round(H*0.28) };
+  const posB = { x: W - pad - blockRowW, y: Math.round(H*0.28) };
+  const posC = { x: Math.round(W*0.40),  y: Math.round(H*0.62) };
 
-  let posA = clampPointToCanvas(outwardOffsetPoint(tri.B, tri.C, ctr, 42), W, H, 18);
   drawBlocksRowAt(ctx2, posA.x, posA.y, a, BLOCK_COL_A, "a");
-
-  let posB = clampPointToCanvas(outwardOffsetPoint(tri.A, tri.C, ctr, 42), W, H, 18);
   drawBlocksRowAt(ctx2, posB.x, posB.y, b, BLOCK_COL_B, "b");
-
-  let posC = clampPointToCanvas(outwardOffsetPoint(tri.A, tri.B, ctr, 42), W, H, 18);
   drawBlocksRowAt(ctx2, posC.x, posC.y, c, BLOCK_COL_C, "c");
 
-  ctx2.save();
-  ctx2.font = "900 15px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-  ctx2.fillStyle = "rgba(18,34,51,0.72)";
-  ctx2.fillText("Regel: langste zijde moet kleiner zijn dan de som van de andere twee. (Blokjes!)", 18, H-18);
-  ctx2.restore();
+  drawBottomRule(ctx2, W, H, "Regel: langste zijde < som van de andere twee. (Blokjes!)");
 
-  g2DrawData = {tri, notes};
+  g2DrawData = {tri, notes, W, H};
 }
 
 function playToneAtVertexGame2(vertex){
@@ -1115,8 +1177,8 @@ function playToneAtVertexGame2(vertex){
 cv2.addEventListener("click", (e)=>{
   if(!g2DrawData) return;
   const rect = cv2.getBoundingClientRect();
-  const x = (e.clientX - rect.left) * (cv2.width / rect.width);
-  const y = (e.clientY - rect.top) * (cv2.height / rect.height);
+  const x = (e.clientX - rect.left);
+  const y = (e.clientY - rect.top);
   const n = g2DrawData.notes;
   const hit = (key)=> dist2(x,y,n[key].x,n[key].y) <= (n[key].r*n[key].r);
   if(hit("A")) return playToneAtVertexGame2("A");
@@ -1358,13 +1420,6 @@ function resetGame1UI(){
   hint1.innerHTML = `Klik op de nootjes: <b>laagste toon = langste zijde</b>.<br/>Punt dit level: <b>1/1</b> (zolang je geen fout maakt)`;
   hideResult(p1Result);
 }
-function resetGame2Buttons(){
-  clearMCQ(choices2, "data-pick2");
-  clearMCQ(choicesRule, "data-rule");
-  choicesRule.querySelectorAll("button").forEach(b=> b.disabled = true);
-  next2.disabled = true;
-  hideResult(p2Result);
-}
 
 /* =========================
    CONFETTI
@@ -1376,8 +1431,10 @@ let confettiParts = [];
 let confettiTimer = null;
 
 function resizeConfetti(){
-  conf.width = window.innerWidth * devicePixelRatio;
-  conf.height = window.innerHeight * devicePixelRatio;
+  const dpr = window.devicePixelRatio || 1;
+  conf.width = Math.round(window.innerWidth * dpr);
+  conf.height = Math.round(window.innerHeight * dpr);
+  cctx.setTransform(dpr,0,0,dpr,0,0);
 }
 window.addEventListener("resize", resizeConfetti);
 
@@ -1387,15 +1444,19 @@ function startConfetti(ms=2500){
   confettiOn = true;
   confettiParts = [];
   const N = 220;
+
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+
   for(let i=0;i<N;i++){
     confettiParts.push({
-      x: Math.random()*conf.width,
-      y: -Math.random()*conf.height*0.2,
-      r: (4+Math.random()*6) * devicePixelRatio,
-      vx: (-1+Math.random()*2) * devicePixelRatio * 1.2,
-      vy: (2+Math.random()*4) * devicePixelRatio * 1.2,
-      w: 6*devicePixelRatio,
-      h: 10*devicePixelRatio,
+      x: Math.random()*W,
+      y: -Math.random()*H*0.2,
+      r: 4+Math.random()*6,
+      vx: (-1+Math.random()*2) * 1.2,
+      vy: (2+Math.random()*4) * 1.2,
+      w: 6,
+      h: 10,
       rot: Math.random()*Math.PI,
       vr: (-0.2+Math.random()*0.4)
     });
@@ -1407,18 +1468,22 @@ function startConfetti(ms=2500){
 function stopConfetti(){
   confettiOn = false;
   conf.style.display = "none";
-  cctx.clearRect(0,0,conf.width, conf.height);
+  cctx.clearRect(0,0,window.innerWidth, window.innerHeight);
 }
 function stepConfetti(){
   if(!confettiOn) return;
-  cctx.clearRect(0,0,conf.width, conf.height);
+
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+
+  cctx.clearRect(0,0,W,H);
 
   for(const p of confettiParts){
     p.x += p.vx;
     p.y += p.vy;
     p.rot += p.vr;
 
-    if(p.y > conf.height + 50) p.y = -20;
+    if(p.y > H + 50) p.y = -20;
 
     cctx.save();
     cctx.translate(p.x, p.y);
@@ -1432,7 +1497,7 @@ function stepConfetti(){
 }
 
 /* =========================
-   INIT
+   INIT + RESPONSIVE REDRAW
 ========================= */
 initScoreState();
 updateScores();
@@ -1442,6 +1507,19 @@ drawGame1();
 drawGame2();
 updateResumeButtons();
 showSingle(intro1);
+
+// ✅ belangrijk: hertekenen op resize zodat alles altijd mooi blijft
+let resizeTimer = null;
+window.addEventListener("resize", ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{
+    // caches weg, want W/H veranderde
+    g1TriCache.fill(null);
+    g2TriCache.fill(null);
+    drawGame1();
+    drawGame2();
+  }, 120);
+});
 </script>
 </body>
 </html>
