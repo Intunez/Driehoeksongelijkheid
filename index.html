@@ -977,8 +977,8 @@ function playToneAtVertexGame1(vertex){
 function g1LevelPointStatusText(){
   const lost = g1HadWrongAttempt[g1Index];
   const solved = g1LevelPointGiven[g1Index];
-  if(!lost && !solved) return "Punt dit level: <b>1/1</b> (zolang je geen fout maakt)";
-  if(lost && !solved)  return "Punt dit level: <b>0/1</b> (je maakte al een fout)";
+  if(!lost && !solved) return "Punt dit level: <b>1/1</b>";
+  if(lost && !solved)  return "Punt dit level: <b>0/1</b>";
   if(!lost && solved)  return "Punt dit level: <b>1/1</b> ✅";
   return "Punt dit level: <b>0/1</b> (opgelost, maar eerder fout)";
 }
