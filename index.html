@@ -131,10 +131,9 @@
       font-size: 13px;
     }
 
-    /* Canvas: breedte 100% en hoogte via JS (responsive) */
     canvas{
       width:100%;
-      height: 640px; /* fallback */
+      height: 640px; /* JS zet dit responsive */
       display:block;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
@@ -444,11 +443,10 @@ const BLOCK_COL_B = "rgba(77,171,247,0.92)";
 const BLOCK_COL_C = "rgba(105,219,124,0.92)";
 
 /* =========================
-   RESPONSIVE CANVAS (Scherp op elk scherm)
-   - we tekenen in CSS-pixels (ctx.setTransform(dpr,...))
+   RESPONSIVE CANVAS (scherp & stabiel)
 ========================= */
 function canvasCssHeight(){
-  // iets minder hoog op kleine schermen, maar groot genoeg om leesbaar te blijven
+  // groot genoeg om duidelijk te blijven, kleiner op smalle schermen
   return (window.innerWidth <= 700) ? 560 : 660;
 }
 
@@ -457,26 +455,20 @@ function resizeCanvasToDisplaySize(canvas, ctx, cssH){
   canvas.style.height = cssH + "px";
 
   const rect = canvas.getBoundingClientRect();
-  const displayWidth  = Math.round(rect.width);
-  const displayHeight = Math.round(cssH);
+  const displayW = Math.round(rect.width);
+  const displayH = Math.round(cssH);
 
-  const needResize =
-    canvas.width  !== Math.round(displayWidth * dpr) ||
-    canvas.height !== Math.round(displayHeight * dpr);
+  const wantW = Math.round(displayW * dpr);
+  const wantH = Math.round(displayH * dpr);
 
-  if(needResize){
-    canvas.width  = Math.round(displayWidth * dpr);
-    canvas.height = Math.round(displayHeight * dpr);
+  if(canvas.width !== wantW || canvas.height !== wantH){
+    canvas.width = wantW;
+    canvas.height = wantH;
 
     // teken-coördinaten in CSS-pixels
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
-  return needResize;
-}
-
-function canvasSizeCss(canvas, cssH){
-  const rect = canvas.getBoundingClientRect();
-  return { W: rect.width, H: cssH };
+  return {W: displayW, H: displayH};
 }
 
 /* =========================
@@ -539,16 +531,13 @@ let GAME1_LEVELS = generateG1Levels(5);
 let GAME2_LEVELS = generateG2Levels(5);
 
 /* =========================
-   VASTE VISUAL PER LEVEL (misleiding blijft consistent)
+   VASTE (MISLEIDENDE) VISUAL PER LEVEL
 ========================= */
 const g1VisualCache = Array(GAME1_LEVELS.length).fill(null);
 const g2VisualCache = Array(GAME2_LEVELS.length).fill(null);
 
-// cache van exacte punten A/B/C per level
-const g1TriCache = Array(GAME1_LEVELS.length).fill(null);
-const g2TriCache = Array(GAME2_LEVELS.length).fill(null);
-
 function getVisualTriangleSides(){
+  // beetje random, maar per level vast
   const base = randInt(90, 110);
   const da = base + randInt(-8, 8);
   const db = base + randInt(-8, 8);
@@ -562,16 +551,6 @@ function getFixedVisualForGame1Level(i){
 function getFixedVisualForGame2Level(i){
   if(!g2VisualCache[i]) g2VisualCache[i] = getVisualTriangleSides();
   return g2VisualCache[i];
-}
-
-// clone helper (geen references)
-function cloneTri(t){
-  return {
-    A:{x:t.A.x, y:t.A.y},
-    B:{x:t.B.x, y:t.B.y},
-    C:{x:t.C.x, y:t.C.y},
-    px: t.px ? {a:t.px.a,b:t.px.b,c:t.px.c} : undefined
-  };
 }
 
 /* =========================
@@ -729,6 +708,7 @@ function lengthsToPixels(a,b,c, maxPx){
   const scale = maxPx / maxSide;
   return {a:a*scale, b:b*scale, c:c*scale};
 }
+
 function computeTrianglePoints(drawA, drawB, drawC, W, H, opts={}){
   const maxPx = opts.maxPx ?? 520;
   const originX = opts.originX ?? (W*0.18);
@@ -746,6 +726,21 @@ function computeTrianglePoints(drawA, drawB, drawC, W, H, opts={}){
 
   return {A,B,C, px};
 }
+
+// ✅ Belangrijk: voorkomt "platte" of onzichtbare driehoeken
+function computeTrianglePointsSafe(drawA, drawB, drawC, W, H, opts={}){
+  let maxPx = opts.maxPx ?? Math.min(W, H) * 0.62;
+  const minHeight = opts.minHeight ?? 90;
+
+  for(let tries=0; tries<8; tries++){
+    const tri = computeTrianglePoints(drawA, drawB, drawC, W, H, {...opts, maxPx});
+    const height = Math.abs(tri.A.y - tri.C.y);
+    if(Number.isFinite(height) && height >= minHeight) return tri;
+    maxPx *= 0.85;
+  }
+  return computeTrianglePoints(drawA, drawB, drawC, W, H, {...opts, maxPx: maxPx*0.7});
+}
+
 function fitTriangleToCanvas(tri, W, H, pad=28){
   const pts = [tri.A, tri.B, tri.C];
   const minX = Math.min(...pts.map(p=>p.x));
@@ -766,7 +761,6 @@ function fitTriangleToCanvas(tri, W, H, pad=28){
   return tri;
 }
 
-// NIEUW: als hij nog te groot is -> schaal hem netjes naar binnen
 function scaleTriangleToFit(tri, W, H, pad=28){
   const pts = [tri.A, tri.B, tri.C];
   const minX = Math.min(...pts.map(p=>p.x));
@@ -844,6 +838,7 @@ function computeNotePositions(tri){
   const off = (pt, dx, dy)=>({x:pt.x+dx, y:pt.y+dy, r:20});
   return { A: off(A,-24,-26), B: off(B,+10,-26), C: off(C,-10,-34) };
 }
+
 if(!CanvasRenderingContext2D.prototype.roundRect){
   CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r){
     const rr = Math.min(r, w/2, h/2);
@@ -857,6 +852,7 @@ if(!CanvasRenderingContext2D.prototype.roundRect){
     return this;
   };
 }
+
 function drawBlocksRowAt(ctx, x, y, value, color, label){
   const size = 14, gap = 4;
   const perRow = 10;
@@ -932,36 +928,33 @@ let g1DrawData = null;
 
 function currentG1(){ return GAME1_LEVELS[g1Index]; }
 
-function getOrBuildG1Tri(W, H){
-  if(g1TriCache[g1Index]) return cloneTri(g1TriCache[g1Index]);
-
+function buildG1Tri(W, H){
   const vis = getFixedVisualForGame1Level(g1Index);
 
-  let tri = computeTrianglePoints(vis.da, vis.db, vis.dc, W, H, {
-    maxPx: Math.min(720, W*0.78),
+  // ✅ extra marge zodat dikke lijnen + nootjes altijd passen
+  const PAD = 92;
+
+  let tri = computeTrianglePointsSafe(vis.da, vis.db, vis.dc, W, H, {
+    maxPx: Math.min(W, H) * 0.62,
+    minHeight: 95,
     originX: W*0.14,
     originY: H*0.80
   });
 
-  tri = scaleTriangleToFit(tri, W, H, 30);
-  tri = fitTriangleToCanvas(tri, W, H, 30);
-
-  g1TriCache[g1Index] = cloneTri(tri);
-  return cloneTri(tri);
+  tri = scaleTriangleToFit(tri, W, H, PAD);
+  tri = fitTriangleToCanvas(tri, W, H, PAD);
+  return tri;
 }
 
 function drawGame1(){
-  const cssH = canvasCssHeight();
-  resizeCanvasToDisplaySize(cv1, ctx1, cssH);
-  const {W, H} = canvasSizeCss(cv1, cssH);
-
+  const {W, H} = resizeCanvasToDisplaySize(cv1, ctx1, canvasCssHeight());
   ctx1.clearRect(0,0,W,H);
   drawGrid(ctx1,W,H);
 
   p1Level.querySelector("span").textContent = `Spel 1 • Level ${g1Index+1}/5`;
   drawText(ctx1, 18, 40, "Spel 1: klik op nootjes — laagste toon = langste zijde", 22, 1000, 1);
 
-  const tri = getOrBuildG1Tri(W, H);
+  const tri = buildG1Tri(W, H);
   const notes = computeNotePositions(tri);
 
   drawStick(ctx1, tri.B, tri.C, 14, COL_A); // a = BC
@@ -981,8 +974,7 @@ function drawGame1(){
   drawNote(ctx1, notes.C.x, notes.C.y, g1LastPlayed==="C");
 
   drawBottomRule(ctx1, W, H, "Tip: tekening misleidt — gebruik het geluid.");
-
-  g1DrawData = {tri, notes, W, H};
+  g1DrawData = {tri, notes};
 }
 
 function playToneAtVertexGame1(vertex){
@@ -1099,38 +1091,33 @@ let g2RuleSolved = false;
 
 function currentG2(){ return GAME2_LEVELS[g2Index]; }
 
-function getOrBuildG2Tri(W, H){
-  if(g2TriCache[g2Index]) return cloneTri(g2TriCache[g2Index]);
-
+function buildG2Tri(W, H){
   const vis = getFixedVisualForGame2Level(g2Index);
+  const PAD = 92;
 
-  let tri = computeTrianglePoints(vis.da, vis.db, vis.dc, W, H, {
-    maxPx: Math.min(760, W*0.80),
+  let tri = computeTrianglePointsSafe(vis.da, vis.db, vis.dc, W, H, {
+    maxPx: Math.min(W, H) * 0.62,
+    minHeight: 95,
     originX: W*0.10,
-    originY: H*0.74
+    originY: H*0.78
   });
 
-  tri = scaleTriangleToFit(tri, W, H, 30);
-  tri = fitTriangleToCanvas(tri, W, H, 30);
-
-  g2TriCache[g2Index] = cloneTri(tri);
-  return cloneTri(tri);
+  tri = scaleTriangleToFit(tri, W, H, PAD);
+  tri = fitTriangleToCanvas(tri, W, H, PAD);
+  return tri;
 }
 
 function drawGame2(){
   const {a,b,c} = currentG2();
 
-  const cssH = canvasCssHeight();
-  resizeCanvasToDisplaySize(cv2, ctx2, cssH);
-  const {W, H} = canvasSizeCss(cv2, cssH);
-
+  const {W, H} = resizeCanvasToDisplaySize(cv2, ctx2, canvasCssHeight());
   ctx2.clearRect(0,0,W,H);
   drawGrid(ctx2,W,H);
 
   p2Level.querySelector("span").textContent = `Spel 2 • Level ${g2Index+1}/5`;
   drawText(ctx2, 18, 40, "Spel 2: langste zijde + driehoeksongelijkheid", 22, 1000, 1);
 
-  const tri = getOrBuildG2Tri(W, H);
+  const tri = buildG2Tri(W, H);
   const notes = computeNotePositions(tri);
 
   drawStick(ctx2, tri.B, tri.C, 14, COL_A); // a
@@ -1149,7 +1136,7 @@ function drawGame2(){
   drawNote(ctx2, notes.B.x, notes.B.y, g2LastPlayed==="B");
   drawNote(ctx2, notes.C.x, notes.C.y, g2LastPlayed==="C");
 
-  // ✅ FIX: blokjes op vaste plekken (altijd zichtbaar, niet te klein, niet over lijnen)
+  // ✅ Blokjes op vaste plekken (altijd zichtbaar, nooit “mini” onderaan)
   const pad = 18;
   const blockRowW = 10*(14+4); // perRow=10
   const posA = { x: pad,                 y: Math.round(H*0.28) };
@@ -1162,7 +1149,7 @@ function drawGame2(){
 
   drawBottomRule(ctx2, W, H, "Regel: langste zijde < som van de andere twee. (Blokjes!)");
 
-  g2DrawData = {tri, notes, W, H};
+  g2DrawData = {tri, notes};
 }
 
 function playToneAtVertexGame2(vertex){
@@ -1384,11 +1371,8 @@ document.getElementById("restartAll").addEventListener("click", ()=>{
   shuffleInPlace(GAME1_LEVELS);
   shuffleInPlace(GAME2_LEVELS);
 
-  // reset caches op nieuwe lengte
   g1VisualCache.length = GAME1_LEVELS.length; g1VisualCache.fill(null);
   g2VisualCache.length = GAME2_LEVELS.length; g2VisualCache.fill(null);
-  g1TriCache.length = GAME1_LEVELS.length; g1TriCache.fill(null);
-  g2TriCache.length = GAME2_LEVELS.length; g2TriCache.fill(null);
 
   g1Score = 0; g2Score = 0;
   g1Index = 0; g2Index = 0;
@@ -1497,7 +1481,7 @@ function stepConfetti(){
 }
 
 /* =========================
-   INIT + RESPONSIVE REDRAW
+   INIT + RESIZE REDRAW
 ========================= */
 initScoreState();
 updateScores();
@@ -1508,14 +1492,11 @@ drawGame2();
 updateResumeButtons();
 showSingle(intro1);
 
-// ✅ belangrijk: hertekenen op resize zodat alles altijd mooi blijft
+// ✅ hertekenen na resize (zodat driehoek altijd goed past)
 let resizeTimer = null;
 window.addEventListener("resize", ()=>{
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(()=>{
-    // caches weg, want W/H veranderde
-    g1TriCache.fill(null);
-    g2TriCache.fill(null);
     drawGame1();
     drawGame2();
   }, 120);
