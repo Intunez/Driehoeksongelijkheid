@@ -266,7 +266,7 @@
         <div>
           <div class="hint">
             Klik straks op de muzieknoten bij de hoeken.<br/>
-            <b>Laagste toon</b> = <b>langste zijde</b> (tegenover die noot).<br/>
+            <b>Laagste toon</b> = <b>langste zijde</b>.<br/>
           </div>
           <button id="startGame1" class="btn" type="button" style="width:100%; margin-top:12px;">Start Spel 1 →</button>
           <button id="resumeGame1" class="btn-ghost" type="button" style="width:100%; margin-top:10px; display:none;">Terug naar Spel 1 →</button>
@@ -315,6 +315,12 @@
       <div class="miniPoster">
         <img src="spel1.jpg" alt="Spel 1 mini">
       </div>
+
+      <div class="hint" id="hint1">
+        Klik op de <b>muzieknoten
+      </div>
+    </div>
+
     <div class="card">
       <div class="panel-title">
         <h2>Vraag (Spel 1)</h2>
@@ -350,9 +356,19 @@
 
       <canvas id="cv2" aria-label="Spel 2 canvas"></canvas>
 
+      <div class="miniPoster">
+        <div class="txt">⚠️ Spel 2: <b>Tel de blokjes</b>. De tekening is bewust misleidend.</div>
+        <img src="spel2.jpg" alt="Spel 2 mini">
+      </div>
+
+      <div class="warning">
+        ⚠️ Let op: de tekening is <b>bewust misleidend</b>.
+        <b>Gebruik het geluid</b> voor de langste zijde en de <b>blokjes</b> voor de regel.
+      </div>
+
       <div class="hint" id="hint2">
-        Stap 1: klik op de nootjes → <b>laagste toon = langste zijde</b>.<br/>
-        Stap 2: check regel met blokjes: <b>langste &lt; som andere twee</b>.
+        Stap 1: klik op de muzieknoten → <b>laagste toon = langste zijde</b>.<br/>
+        Stap 2: check blokjes: <b>langste &lt; som andere twee</b>.
       </div>
     </div>
 
@@ -936,7 +952,7 @@ function drawGame1(){
   drawGrid(ctx1,W,H);
 
   p1Level.querySelector("span").textContent = `Spel 1 • Level ${g1Index+1}/5`;
-  drawText(ctx1, 18, 40, "Spel 1: klik op nootjes — laagste toon = langste zijde", 22, 1000, 1);
+  drawText(ctx1, 18, 40, "Spel 1: klik op de muzieknoten — laagste toon = langste zijde", 22, 1000, 1);
 
   const tri = buildG1Tri(W, H);
   const notes = computeNotePositions(tri);
@@ -973,8 +989,8 @@ function playToneAtVertexGame1(vertex){
 function g1LevelPointStatusText(){
   const lost = g1HadWrongAttempt[g1Index];
   const solved = g1LevelPointGiven[g1Index];
-  if(!lost && !solved) return "Punt dit level: <b>1/1</b>";
-  if(lost && !solved)  return "Punt dit level: <b>0/1</b>";
+  if(!lost && !solved) return "Punt dit level: <b>1/1</b> ";
+  if(lost && !solved)  return "Punt dit level: <b>0/1</b> ";
   if(!lost && solved)  return "Punt dit level: <b>1/1</b> ✅";
   return "Punt dit level: <b>0/1</b> (opgelost, maar eerder fout)";
 }
@@ -1011,7 +1027,7 @@ function handleG1Pick(pick){
     g1HadWrongAttempt[g1Index] = true;
 
     hint1.className = "hint bad";
-    hint1.innerHTML = `❌ Nog niet. Klik opnieuw op de nootjes: <b>laagste toon = langste zijde</b>.<br/>${g1LevelPointStatusText()}`;
+    hint1.innerHTML = `❌ Nog niet. Klik opnieuw op de muzieknoten: <b> </b>.<br/>${g1LevelPointStatusText()}`;
 
     ensureAudio(); playBadSound();
   }
@@ -1221,7 +1237,7 @@ function handleG2PickLongest(pick){
     next2.disabled = true;
 
     hint2b.className = "hint bad";
-    hint2b.innerHTML = `❌ Niet juist. Klik opnieuw op de nootjes: <b>laagste toon = langste zijde</b>.<br/>${g2StepPointStatusText()}`;
+    hint2b.innerHTML = `❌ Niet juist. Klik opnieuw op de nootjes: <b> </b>.<br/>${g2StepPointStatusText()}`;
     ensureAudio(); playBadSound();
   }
 }
@@ -1385,7 +1401,7 @@ function resetGame1UI(){
   g1Solved = false;
   g1LastPlayed = null;
   hint1.className = "hint";
-  `;
+  hint1.innerHTML = `Klik op de muzieknoten: <b> </b>.<br/>Punt dit level: <b>1/1</b>`;
   hideResult(p1Result);
 }
 
@@ -1488,3 +1504,4 @@ window.addEventListener("resize", ()=>{
 </script>
 </body>
 </html>
+
